@@ -1,0 +1,176 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: #f8f9fa;
+  color: #2c3e50;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Locked content styles */
+.locked-content {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  position: relative;
+}
+
+.locked-content::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(52, 152, 219, 0.1) 100%);
+  backdrop-filter: blur(3px);
+  border-radius: 12px;
+  z-index: 1;
+}
+
+.locked-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(4px);
+  border-radius: 12px;
+  z-index: 2;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.locked-overlay:hover {
+  background: rgba(255, 255, 255, 0.75);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(102, 126, 234, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(102, 126, 234, 0.5); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite;
+}
+
+/* Glassmorphism card */
+.glass-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #667eea 0%, #3498db 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Button hover effects */
+.btn-glow:hover {
+  box-shadow: 0 0 20px rgba(102, 126, 234, 0.4);
+}
+
+/* Tier badge gradients */
+.tier-seeker { background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%); }
+.tier-explorer { background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%); }
+.tier-scholar { background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%); }
+.tier-master { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); }
+.tier-legend { background: linear-gradient(135deg, #e5e7eb 0%, #9ca3af 100%); }
+.tier-titan { background: linear-gradient(135deg, #f472b6 0%, #ec4899 50%, #8b5cf6 100%); }
+
+/* Score popup animation */
+.score-popup {
+  animation: scorePopup 1.5s ease-out forwards;
+}
+
+@keyframes scorePopup {
+  0% { opacity: 0; transform: translateY(0) scale(0.5); }
+  20% { opacity: 1; transform: translateY(-20px) scale(1.2); }
+  100% { opacity: 0; transform: translateY(-50px) scale(1); }
+}
+
+/* Chat message animations */
+.message-appear {
+  animation: messageAppear 0.3s ease-out;
+}
+
+@keyframes messageAppear {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Timer warning state */
+.timer-warning {
+  animation: pulse 0.5s ease-in-out infinite;
+  color: #e74c3c;
+}
+
+/* Disable text selection for quiz */
+.no-select {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Responsive container */
+.container-app {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+@media (min-width: 640px) {
+  .container-app {
+    padding: 0 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-app {
+    padding: 0 2rem;
+  }
+}
