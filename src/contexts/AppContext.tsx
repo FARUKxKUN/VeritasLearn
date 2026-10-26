@@ -1,131 +1,78 @@
-import { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
-import { TierType, Message, UserStats, Activity, Question } from '../types';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import type { Activity, Message, TierType, UserStats } from '../types';
 import { getTier } from '../utils/tiers';
-import { saveScore, loadScore, saveActivities, loadActivities } from '../utils/storage';
+import { loadActivities, loadScore, saveActivities, saveScore } from '../utils/storage';
 import { DEMO_STATS } from '../utils/mockData';
 
-interface AppState {
-    score: number;
-    tier: TierType;
-    stats: UserStats;
-    activities: Activity[];
-    messages: Message[];
-    currentQuiz: Question[] | null;
-    isQuizActive: boolean;
-    scorePopup: { show: boolean; points: number } | null;
-}
+const ACTIVITY_LIMIT = 20;
+const POPUP_MS = 2200;
 
-interface AppContextType extends AppState {
-    addScore: (points: number, reason: string) => void;
-    addMessage: (message: Message) => void;
-    updateMessage: (id: string, updates: Partial<Message>) => void;
-    clearMessages: () => void;
-    setQuiz: (questions: Question[] | null) => void;
-    setQuizActive: (active: boolean) => void;
-    updateStats: (updates: Partial<UserStats>) => void;
-    showScorePopup: (points: number) => void;
+interface AppContextType {
+  score: number;
+  tier: TierType;
+  stats: UserStats;
+  activities: Activity[];
+  messages: Message[];
+  scorePopup: { points: number } | null;
+  addScore: (points: number, reason: string) => void;
+  addMessage: (message: Message) => void;
+  updateMessage: (id: string, updates: Partial<Message>) => void;
+  clearMessages: () => void;
+  updateStats: (updates: Partial<UserStats>) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
-    const [score, setScore] = useState<number>(() => loadScore());
-    const [tier, setTier] = useState<TierType>(() => getTier(loadScore()));
-    const [stats, setStats] = useState<UserStats>(DEMO_STATS);
-    const [activities, setActivities] = useState<Activity[]>(() => loadActivities() as Activity[]);
-    const [messages, setMessages] = useState<Message[]>([]);
-    const [currentQuiz, setCurrentQuiz] = useState<Question[] | null>(null);
-    const [isQuizActive, setIsQuizActive] = useState(false);
-    const [scorePopup, setScorePopup] = useState<{ show: boolean; points: number } | null>(null);
+  const [score, setScore] = useState<number>(loadScore);
+  const [stats, setStats] = useState<UserStats>(DEMO_STATS);
+  const [activities, setActivities] = useState<Activity[]>(loadActivities);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [scorePopup, setScorePopup] = useState<{ points: number } | null>(null);
+  const popupTimer = useRef<number | undefined>(undefined);
 
-    // Persist score changes
-    useEffect(() => {
-        saveScore(score);
-        setTier(getTier(score));
-    }, [score]);
+  const tier = useMemo(() => getTier(score), [score]);
 
-    // Persist activities
-    useEffect(() => {
-        saveActivities(activities);
-    }, [activities]);
+  useEffect(() => saveScore(score), [score]);
+  useEffect(() => saveActivities(activities), [activities]);
+  useEffect(() => () => window.clearTimeout(popupTimer.current), []);
 
-    const addScore = useCallback((points: number, reason: string) => {
-        setScore(prev => prev + points);
-        const newActivity: Activity = {
-            id: Date.now().toString(),
-            type: points > 0 ? 'quiz_pass' : 'copy',
-            description: reason,
-            points,
-            timestamp: new Date(),
-        };
-        setActivities(prev => [newActivity, ...prev].slice(0, 20));
+  const addScore = useCallback((points: number, reason: string) => {
+    setScore((prev) => prev + points);
+    const entry: Activity = {
+      id: Date.now().toString(),
+      type: points > 0 ? 'quiz_pass' : 'copy',
+      description: reason,
+      points,
+      timestamp: new Date(),
+    };
+    setActivities((prev) => [entry, ...prev].slice(0, ACTIVITY_LIMIT));
+    if (points > 0) {
+      window.clearTimeout(popupTimer.current);
+      setScorePopup({ points });
+      popupTimer.current = window.setTimeout(() => setScorePopup(null), POPUP_MS);
+    }
+  }, []);
 
-        if (points > 0) {
-            showScorePopup(points);
-        }
-    }, []);
+  const addMessage = useCallback((message: Message) => setMessages((prev) => [...prev, message]), []);
+  const updateMessage = useCallback(
+    (id: string, updates: Partial<Message>) =>
+      setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, ...updates } : m))),
+    [],
+  );
+  const clearMessages = useCallback(() => setMessages([]), []);
+  const updateStats = useCallback((updates: Partial<UserStats>) => setStats((prev) => ({ ...prev, ...updates })), []);
 
-    const addMessage = useCallback((message: Message) => {
-        setMessages(prev => [...prev, message]);
-    }, []);
+  const value = useMemo<AppContextType>(
+    () => ({ score, tier, stats, activities, messages, scorePopup, addScore, addMessage, updateMessage, clearMessages, updateStats }),
+    [score, tier, stats, activities, messages, scorePopup, addScore, addMessage, updateMessage, clearMessages, updateStats],
+  );
 
-    const updateMessage = useCallback((id: string, updates: Partial<Message>) => {
-        setMessages(prev =>
-            prev.map(msg => msg.id === id ? { ...msg, ...updates } : msg)
-        );
-    }, []);
-
-    const clearMessages = useCallback(() => {
-        setMessages([]);
-    }, []);
-
-    const setQuiz = useCallback((questions: Question[] | null) => {
-        setCurrentQuiz(questions);
-    }, []);
-
-    const setQuizActive = useCallback((active: boolean) => {
-        setIsQuizActive(active);
-    }, []);
-
-    const updateStats = useCallback((updates: Partial<UserStats>) => {
-        setStats(prev => ({ ...prev, ...updates }));
-    }, []);
-
-    const showScorePopup = useCallback((points: number) => {
-        setScorePopup({ show: true, points });
-        setTimeout(() => setScorePopup(null), 2000);
-    }, []);
-
-    return (
-        <AppContext.Provider
-            value={{
-                score,
-                tier,
-                stats,
-                activities,
-                messages,
-                currentQuiz,
-                isQuizActive,
-                scorePopup,
-                addScore,
-                addMessage,
-                updateMessage,
-                clearMessages,
-                setQuiz,
-                setQuizActive,
-                updateStats,
-                showScorePopup,
-            }}
-        >
-            {children}
-        </AppContext.Provider>
-    );
+  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 }
 
-export function useApp() {
-    const context = useContext(AppContext);
-    if (context === undefined) {
-        throw new Error('useApp must be used within an AppProvider');
-    }
-    return context;
+export function useApp(): AppContextType {
+  const context = useContext(AppContext);
+  if (!context) throw new Error('useApp must be used within an AppProvider');
+  return context;
 }

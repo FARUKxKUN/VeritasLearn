@@ -1,31 +1,31 @@
-import { TierType, LeaderboardEntry, Question } from '../types';
-import { Flashcard } from '../components/quiz/Flashcards';
+import { TierType, type LeaderboardEntry, type Question } from '../types';
+import type { Flashcard } from '../types';
 
-// Mock leaderboard data
+// Mock leaderboard data. People and campuses are invented; none refer to real students or institutions.
 export const MOCK_LEADERBOARD: LeaderboardEntry[] = [
-    { rank: 1, name: 'Sarah Chen', university: 'MIT', tier: TierType.TITAN, score: 12450, avatar: 'SC' },
-    { rank: 2, name: 'Ahmed Hassan', university: 'Stanford', tier: TierType.LEGEND, score: 8920, avatar: 'AH' },
-    { rank: 3, name: 'Maria Garcia', university: 'Harvard', tier: TierType.LEGEND, score: 7650, avatar: 'MG' },
-    { rank: 4, name: 'James Wilson', university: 'Yale', tier: TierType.LEGEND, score: 6280, avatar: 'JW' },
-    { rank: 5, name: 'Priya Patel', university: 'Princeton', tier: TierType.MASTER, score: 4850, avatar: 'PP' },
-    { rank: 6, name: 'Michael Brown', university: 'Columbia', tier: TierType.MASTER, score: 3920, avatar: 'MB' },
-    { rank: 7, name: 'You', university: 'Your University', tier: TierType.SCHOLAR, score: 1850, avatar: 'YU', isCurrentUser: true },
-    { rank: 8, name: 'Emma Thompson', university: 'Duke', tier: TierType.SCHOLAR, score: 1750, avatar: 'ET' },
-    { rank: 9, name: 'David Kim', university: 'Cornell', tier: TierType.SCHOLAR, score: 1620, avatar: 'DK' },
-    { rank: 10, name: 'Lisa Anderson', university: 'Brown', tier: TierType.EXPLORER, score: 890, avatar: 'LA' },
+    { rank: 1, name: 'Sarah Chen', university: 'Halden University', tier: TierType.TITAN, score: 12450, avatar: 'SC' },
+    { rank: 2, name: 'Ahmed Hassan', university: 'Marlowe College', tier: TierType.LEGEND, score: 8920, avatar: 'AH' },
+    { rank: 3, name: 'Maria Garcia', university: 'Ashgrove University', tier: TierType.LEGEND, score: 7650, avatar: 'MG' },
+    { rank: 4, name: 'James Wilson', university: 'Corvin Institute', tier: TierType.LEGEND, score: 6280, avatar: 'JW' },
+    { rank: 5, name: 'Priya Patel', university: 'Northfield University', tier: TierType.MASTER, score: 4850, avatar: 'PP' },
+    { rank: 6, name: 'Michael Brown', university: 'Eastbrook College', tier: TierType.MASTER, score: 3920, avatar: 'MB' },
+    { rank: 7, name: 'You', university: 'Your campus', tier: TierType.SCHOLAR, score: 1850, avatar: 'YU', isCurrentUser: true },
+    { rank: 8, name: 'Emma Thompson', university: 'Westmere University', tier: TierType.SCHOLAR, score: 1750, avatar: 'ET' },
+    { rank: 9, name: 'David Kim', university: 'Lakeside Institute', tier: TierType.SCHOLAR, score: 1620, avatar: 'DK' },
+    { rank: 10, name: 'Lisa Anderson', university: 'Fenwick College', tier: TierType.EXPLORER, score: 890, avatar: 'LA' },
 ];
 
 export const MOCK_NATIONAL_LEADERBOARD: LeaderboardEntry[] = [
-    { rank: 1, name: 'Alex Rivera', university: 'Caltech', tier: TierType.TITAN, score: 15200, avatar: 'AR' },
-    { rank: 2, name: 'Sarah Chen', university: 'MIT', tier: TierType.TITAN, score: 12450, avatar: 'SC' },
-    { rank: 3, name: 'Jordan Lee', university: 'Berkeley', tier: TierType.TITAN, score: 11800, avatar: 'JL' },
-    { rank: 4, name: 'Ahmed Hassan', university: 'Stanford', tier: TierType.LEGEND, score: 8920, avatar: 'AH' },
-    { rank: 5, name: 'Maria Garcia', university: 'Harvard', tier: TierType.LEGEND, score: 7650, avatar: 'MG' },
-    { rank: 6, name: 'Chris Taylor', university: 'Georgia Tech', tier: TierType.LEGEND, score: 6900, avatar: 'CT' },
-    { rank: 7, name: 'James Wilson', university: 'Yale', tier: TierType.LEGEND, score: 6280, avatar: 'JW' },
-    { rank: 8, name: 'Sophie Martin', university: 'UCLA', tier: TierType.LEGEND, score: 5850, avatar: 'SM' },
-    { rank: 9, name: 'Ryan Johnson', university: 'Michigan', tier: TierType.LEGEND, score: 5420, avatar: 'RJ' },
-    { rank: 10, name: 'Emily Davis', university: 'Northwestern', tier: TierType.MASTER, score: 4920, avatar: 'ED' },
+    { rank: 1, name: 'Alex Rivera', university: 'Riverton Institute', tier: TierType.TITAN, score: 15200, avatar: 'AR' },
+    { rank: 2, name: 'Sarah Chen', university: 'Halden University', tier: TierType.TITAN, score: 12450, avatar: 'SC' },
+    { rank: 3, name: 'Jordan Lee', university: 'Larkspur University', tier: TierType.TITAN, score: 11800, avatar: 'JL' },
+    { rank: 4, name: 'Ahmed Hassan', university: 'Marlowe College', tier: TierType.LEGEND, score: 8920, avatar: 'AH' },
+    { rank: 5, name: 'Maria Garcia', university: 'Ashgrove University', tier: TierType.LEGEND, score: 7650, avatar: 'MG' },
+    { rank: 6, name: 'Chris Taylor', university: 'Pinecrest Institute', tier: TierType.LEGEND, score: 6900, avatar: 'CT' },
+    { rank: 7, name: 'James Wilson', university: 'Corvin Institute', tier: TierType.LEGEND, score: 6280, avatar: 'JW' },
+    { rank: 8, name: 'Sophie Martin', university: 'Sunvale University', tier: TierType.LEGEND, score: 5850, avatar: 'SM' },
+    { rank: 9, name: 'Ryan Johnson', university: 'Greymoor University', tier: TierType.LEGEND, score: 5420, avatar: 'RJ' },
+    { rank: 10, name: 'Emily Davis', university: 'Highgate College', tier: TierType.MASTER, score: 4920, avatar: 'ED' },
 ];
 
 // Demo user stats
@@ -109,9 +109,9 @@ export const FALLBACK_RESPONSES: Record<string, StudyData> = {
                 timeLimit: 30
             }
         ],
-        humanized: `So basically, photosynthesis is like a plant's way of making food using sunlight! 🌱☀️
+        humanized: `So basically, photosynthesis is like a plant's way of making food using sunlight!
 
-Think of it this way: plants take in CO₂ (what we breathe out) and water, then use sunlight as energy to cook up glucose (sugar) for food. As a bonus, they release oxygen – which is pretty convenient for us!
+Think of it this way: plants take in CO₂ (what we breathe out) and water, then use sunlight as energy to cook up glucose (sugar) for food. As a bonus, they release oxygen - which is pretty convenient for us!
 
 The magic happens in chloroplasts, and the green stuff (chlorophyll) is what catches the sunlight. It's like a solar panel for plants!
 
@@ -211,7 +211,7 @@ This law explains why we need forces to start, stop, or change the direction of 
                     'Acceleration'
                 ],
                 correctAnswer: 1,
-                explanation: 'Newton\'s First Law describes inertia – the tendency of objects to resist changes in their state of motion.',
+                explanation: 'Newton\'s First Law describes inertia - the tendency of objects to resist changes in their state of motion.',
                 timeLimit: 30
             },
             {
@@ -241,7 +241,7 @@ This law explains why we need forces to start, stop, or change the direction of 
                 timeLimit: 30
             }
         ],
-        humanized: `Newton's First Law is basically saying: things are lazy! 😅
+        humanized: `Newton's First Law is basically saying: things are lazy!
 
 Here's the deal:
 • If something is sitting still, it wants to STAY still
@@ -256,7 +256,7 @@ This "laziness" is called **inertia**. Heavier things have more inertia (think: 
 - Why seatbelts exist? To stop your inertia from launching you through the windshield
 - Why a soccer ball needs a kick to move? It was happy sitting still!
 
-So next time you don't want to get out of bed, just tell everyone you're demonstrating Newton's First Law 😄`,
+So next time you don't want to get out of bed, just tell everyone you're demonstrating Newton's First Law`,
         keyPoints: [
             'Objects at rest stay at rest unless acted upon by an unbalanced force',
             'Objects in motion stay in motion with the same speed and direction unless acted upon',
@@ -373,18 +373,15 @@ Take time to understand each component, and you'll find this knowledge builds na
                 timeLimit: 30
             }
         ],
-        humanized: `Let me break this down in a simpler way! 
+        humanized: `Let me break this down in a simpler way!
 
 The key thing to remember here is that this concept is all about understanding the "why" not just the "what."
 
 Think of it like building blocks:
-- Start with the basics ✓
-- Build up your understanding ✓
-- Connect it to real life ✓
+- Start with the basics - Build up your understanding - Connect it to real life
+Once you get the core idea, everything else starts to click into place. Don't worry about memorizing everything - focus on understanding the main principles first!
 
-Once you get the core idea, everything else starts to click into place. Don't worry about memorizing everything – focus on understanding the main principles first!
-
-You've got this! 💪`,
+You've got this!`,
         keyPoints: [
             'Focus on understanding principles, not just memorizing facts',
             'Foundational concepts are building blocks for advanced learning',

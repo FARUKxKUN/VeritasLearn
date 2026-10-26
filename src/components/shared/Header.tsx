@@ -1,86 +1,51 @@
-import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { ScoreDisplay } from './ScoreDisplay';
-import { Menu, X, LayoutDashboard, Trophy, MessageSquare } from 'lucide-react';
+import { NavLink, Link } from 'react-router-dom';
+import { useApp } from '../../contexts/AppContext';
+import { getTierConfig } from '../../utils/tiers';
+import { Stamp } from '../ui/Stamp';
 import { cn } from '../../lib/utils';
 
-const navLinks = [
-    { path: '/learn', label: 'Learn', icon: MessageSquare },
-    { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { path: '/leaderboard', label: 'Leaderboard', icon: Trophy },
-];
+const LINKS = [
+  { to: '/learn', label: 'Tutor' },
+  { to: '/dashboard', label: 'Progress' },
+  { to: '/leaderboard', label: 'Leaderboard' },
+] as const;
 
 export function Header() {
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const location = useLocation();
-
-    return (
-        <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-lg border-b border-gray-200">
-            <div className="container-app">
-                <div className="flex items-center justify-between h-16">
-                    {/* Logo */}
-                    <Link to="/" className="flex items-center gap-2 group">
-                        <img src="/logo.png" alt="VeritasLearn Logo" className="h-10 w-auto" />
-                        <span className="text-xl font-bold gradient-text hidden sm:block">
-                            VeritasLearn
-                        </span>
-                    </Link>
-
-                    {/* Desktop Navigation */}
-                    <nav className="hidden md:flex items-center gap-1">
-                        {navLinks.map(({ path, label, icon: Icon }) => (
-                            <Link
-                                key={path}
-                                to={path}
-                                className={cn(
-                                    'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-                                    location.pathname === path
-                                        ? 'bg-primary-50 text-primary-600'
-                                        : 'text-text-secondary hover:text-text-primary hover:bg-gray-50'
-                                )}
-                            >
-                                <Icon size={18} />
-                                {label}
-                            </Link>
-                        ))}
-                    </nav>
-
-                    {/* Score Display & Mobile Menu */}
-                    <div className="flex items-center gap-4">
-                        <ScoreDisplay />
-
-                        <button
-                            className="md:hidden p-2 rounded-lg hover:bg-gray-100"
-                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                            aria-label="Toggle menu"
-                        >
-                            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-                        </button>
-                    </div>
-                </div>
-
-                {/* Mobile Navigation */}
-                {mobileMenuOpen && (
-                    <nav className="md:hidden py-4 border-t border-gray-100 animate-fade-in">
-                        {navLinks.map(({ path, label, icon: Icon }) => (
-                            <Link
-                                key={path}
-                                to={path}
-                                onClick={() => setMobileMenuOpen(false)}
-                                className={cn(
-                                    'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors',
-                                    location.pathname === path
-                                        ? 'bg-primary-50 text-primary-600'
-                                        : 'text-text-secondary hover:text-text-primary hover:bg-gray-50'
-                                )}
-                            >
-                                <Icon size={20} />
-                                {label}
-                            </Link>
-                        ))}
-                    </nav>
-                )}
-            </div>
-        </header>
-    );
+  const { score, tier } = useApp();
+  const config = getTierConfig(tier);
+  return (
+    <header className="sticky top-0 z-40 border-b-2 border-ink bg-paper">
+      <div className="shell flex min-h-16 items-center justify-between gap-4">
+        <Link to="/" className="flex min-h-11 items-center gap-2 font-display text-2xl leading-none">
+          <img src="/logo.svg" alt="" width={28} height={28} />
+          <span>
+            Veritas<span className="text-crimson">Learn</span>
+          </span>
+        </Link>
+        <nav aria-label="Main" className="flex items-center gap-1 sm:gap-4">
+          {LINKS.map((link) => (
+            <NavLink
+              key={link.to}
+              to={link.to}
+              className={({ isActive }) =>
+                cn(
+                  'inline-flex min-h-11 items-center border-b-4 px-2 text-small font-medium',
+                  isActive ? 'border-crimson' : 'border-transparent text-ink-2 hover:text-ink',
+                )
+              }
+            >
+              {link.label}
+            </NavLink>
+          ))}
+        </nav>
+        <p className="hidden items-center gap-3 sm:flex">
+          <Stamp tier={tier} size="sm" />
+          <span className="leading-tight">
+            <span className="tnum block font-mono text-small font-medium">{score.toLocaleString('en-US')}</span>
+            <span className="label block">{config.name}</span>
+          </span>
+        </p>
+      </div>
+    </header>
+  );
 }

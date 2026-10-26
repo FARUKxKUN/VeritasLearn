@@ -1,160 +1,134 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { ArrowUp, LockKey, LockKeyOpen } from '@phosphor-icons/react';
 import { useApp } from '../../contexts/AppContext';
-import { MessageBubble } from './MessageBubble';
-import { Button } from '../ui';
-import { Send, Loader2, Trash2 } from 'lucide-react';
 import { getFallbackResponse } from '../../utils/mockData';
-import { Message } from '../../types';
+import type { Message } from '../../types';
+import { Button } from '../ui/Button';
+import { RedactedAnswer } from './RedactedAnswer';
+
+const SUGGESTIONS = ['How does photosynthesis work?', "Explain Newton's first law", 'What is entropy?'] as const;
+const THINK_MS = 700;
 
 interface ChatInterfaceProps {
-    onOpenGate: (messageId: string) => void;
+  onOpenGate: (messageId: string) => void;
 }
 
 export function ChatInterface({ onOpenGate }: ChatInterfaceProps) {
-    const { messages, addMessage, clearMessages } = useApp();
-    const [input, setInput] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
-    const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { messages, addMessage } = useApp();
+  const [draft, setDraft] = useState('');
+  const [thinking, setThinking] = useState(false);
+  const endRef = useRef<HTMLDivElement>(null);
+  const timer = useRef<number | undefined>(undefined);
 
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    };
+  useEffect(() => () => window.clearTimeout(timer.current), []);
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ block: 'end', behavior: 'smooth' });
+  }, [messages.length, thinking]);
 
-    useEffect(() => {
-        scrollToBottom();
-    }, [messages]);
+  const ask = (question: string) => {
+    const trimmed = question.trim();
+    if (!trimmed || thinking) return;
+    const now = Date.now();
+    addMessage({ id: `u-${now}`, role: 'user', content: trimmed, locked: false, timestamp: new Date() });
+    setDraft('');
+    setThinking(true);
+    timer.current = window.setTimeout(() => {
+      const study = getFallbackResponse(trimmed);
+      addMessage({
+        id: `a-${now}`,
+        role: 'assistant',
+        content: study.answer,
+        humanizedContent: study.humanized,
+        locked: true,
+        timestamp: new Date(),
+      });
+      setThinking(false);
+    }, THINK_MS);
+  };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!input.trim() || isLoading) return;
+  const submit = (event: FormEvent) => {
+    event.preventDefault();
+    ask(draft);
+  };
 
-        const userMessage: Message = {
-            id: Date.now().toString(),
-            role: 'user',
-            content: input.trim(),
-            locked: false,
-            timestamp: new Date(),
-        };
+  return (
+    <div className="flex min-h-[calc(100dvh-9rem)] flex-col">
+      <div className="flex-1 space-y-8 pb-8" aria-live="polite">
+        {messages.length === 0 ? <EmptyState onPick={ask} /> : null}
+        {messages.map((message) => (
+          <Bubble key={message.id} message={message} onOpenGate={onOpenGate} />
+        ))}
+        {thinking ? <p className="label">The tutor is writing...</p> : null}
+        <div ref={endRef} />
+      </div>
 
-        addMessage(userMessage);
-        setInput('');
-        setIsLoading(true);
+      <form onSubmit={submit} className="sticky bottom-0 -mx-1 flex gap-2 border-t-2 border-ink bg-paper px-1 pb-4 pt-4">
+        <label htmlFor="ask" className="sr-only">
+          Ask the tutor a question
+        </label>
+        <input
+          id="ask"
+          value={draft}
+          onChange={(event) => setDraft(event.target.value)}
+          placeholder="Ask about anything you are studying"
+          autoComplete="off"
+          className="min-h-12 flex-1 rounded-edge border-2 border-ink bg-surface px-4 text-ink placeholder:text-ink-3"
+        />
+        <Button type="submit" variant="crimson" disabled={!draft.trim() || thinking} aria-label="Send question" className="size-12 px-0">
+          <ArrowUp size={22} weight="bold" aria-hidden />
+        </Button>
+      </form>
+    </div>
+  );
+}
 
-        // Simulate AI response delay
-        await new Promise(resolve => setTimeout(resolve, 1500));
+function EmptyState({ onPick }: { onPick: (question: string) => void }) {
+  return (
+    <section className="pt-6 md:pt-14">
+      <p className="label">Ask first, read second</p>
+      <h1 className="mt-3 max-w-3xl text-h1">Every answer starts blacked out.</h1>
+      <p className="mt-5 max-w-xl text-ink-2">
+        Ask a question. The tutor writes the answer, then hides it. Pass a short check and the bars lift. This prototype
+        has scripted answers for photosynthesis and Newton&apos;s first law, and one general reply for everything else.
+      </p>
+      <ul className="mt-8 flex flex-wrap gap-3">
+        {SUGGESTIONS.map((suggestion) => (
+          <li key={suggestion}>
+            <Button variant="outline" onClick={() => onPick(suggestion)}>
+              {suggestion}
+            </Button>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
 
-        // Get response (using fallback for demo)
-        const response = getFallbackResponse(userMessage.content);
-
-        const assistantMessage: Message = {
-            id: (Date.now() + 1).toString(),
-            role: 'assistant',
-            content: response.answer,
-            locked: true,
-            timestamp: new Date(),
-            humanizedContent: response.humanized,
-        };
-
-        addMessage(assistantMessage);
-        setIsLoading(false);
-    };
-
+function Bubble({ message, onOpenGate }: { message: Message; onOpenGate: (id: string) => void }) {
+  if (message.role === 'user') {
     return (
-        <div className="flex flex-col h-full bg-gray-50 rounded-2xl overflow-hidden border border-gray-200">
-            {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-200">
-                <div>
-                    <h2 className="font-semibold text-text-primary">AI Learning Assistant</h2>
-                    <p className="text-xs text-text-secondary">Ask any question to start learning</p>
-                </div>
-                {messages.length > 0 && (
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={clearMessages}
-                        className="text-text-secondary hover:text-danger-500"
-                    >
-                        <Trash2 size={16} className="mr-1" />
-                        Clear
-                    </Button>
-                )}
-            </div>
-
-            {/* Messages area */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                {messages.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-full text-center p-8">
-                        <div className="w-16 h-16 rounded-full bg-primary-100 flex items-center justify-center mb-4">
-                            <Send size={28} className="text-primary-500" />
-                        </div>
-                        <h3 className="text-lg font-semibold text-text-primary mb-2">
-                            Start a conversation
-                        </h3>
-                        <p className="text-text-secondary max-w-sm">
-                            Ask about any topic like "Explain photosynthesis" or "What is Newton's First Law?"
-                        </p>
-                        <div className="flex flex-wrap gap-2 mt-4 justify-center">
-                            {['Explain photosynthesis', "Newton's First Law", 'What is gravity?'].map((q) => (
-                                <button
-                                    key={q}
-                                    onClick={() => setInput(q)}
-                                    className="px-3 py-1.5 text-sm bg-white border border-gray-200 rounded-full hover:border-primary-300 hover:bg-primary-50 transition-colors"
-                                >
-                                    {q}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                ) : (
-                    messages.map((message) => (
-                        <MessageBubble
-                            key={message.id}
-                            role={message.role}
-                            content={message.unlocked ? (message.humanizedContent || message.content) : message.content}
-                            locked={message.role === 'assistant' && message.locked && !message.unlocked}
-                            onLockedClick={() => onOpenGate(message.id)}
-                        />
-                    ))
-                )}
-
-                {isLoading && (
-                    <div className="flex gap-3">
-                        <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center">
-                            <Loader2 size={18} className="text-gray-600 animate-spin" />
-                        </div>
-                        <div className="bg-gray-100 rounded-2xl px-4 py-3">
-                            <div className="flex gap-1">
-                                <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                                <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                                <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                <div ref={messagesEndRef} />
-            </div>
-
-            {/* Input area */}
-            <form onSubmit={handleSubmit} className="p-4 bg-white border-t border-gray-200">
-                <div className="flex gap-2">
-                    <input
-                        type="text"
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        placeholder="Ask a question..."
-                        className="flex-1 px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
-                        disabled={isLoading}
-                    />
-                    <Button
-                        type="submit"
-                        disabled={!input.trim() || isLoading}
-                        className="px-4"
-                    >
-                        {isLoading ? <Loader2 size={20} className="animate-spin" /> : <Send size={20} />}
-                    </Button>
-                </div>
-            </form>
-        </div>
+      <div className="flex justify-end">
+        <p className="max-w-[85%] bg-ink px-4 py-3 text-paper">{message.content}</p>
+      </div>
     );
+  }
+  return (
+    <article className="border-l-4 border-crimson pl-4 md:pl-6">
+      <header className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <p className="label flex items-center gap-2">
+          {message.locked ? <LockKey size={16} aria-hidden /> : <LockKeyOpen size={16} aria-hidden />}
+          Tutor
+          {!message.locked && message.unlockedWith ? (
+            <span>{message.unlockedWith === 'quiz' ? '- opened by passing the gate' : '- copied without the gate'}</span>
+          ) : null}
+        </p>
+      </header>
+      <RedactedAnswer text={message.content} locked={message.locked} />
+      {message.locked ? (
+        <Button variant="crimson" className="mt-5" onClick={() => onOpenGate(message.id)}>
+          <LockKeyOpen size={18} aria-hidden /> Lift the bars
+        </Button>
+      ) : null}
+    </article>
+  );
 }

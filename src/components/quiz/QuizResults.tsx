@@ -1,116 +1,39 @@
-import { Button } from '../ui';
-import { Trophy, Star, RefreshCcw, ArrowRight, CheckCircle, XCircle, Sparkles } from 'lucide-react';
-import { cn } from '../../lib/utils';
+import { Button } from '../ui/Button';
 
 interface QuizResultsProps {
-    score: number;
-    totalQuestions: number;
-    pointsEarned: number;
-    onRetry?: () => void;
-    onContinue: () => void;
-    isRetry?: boolean;
+  score: number;
+  totalQuestions: number;
+  pointsEarned: number;
+  isRetry: boolean;
+  onRetry?: () => void;
+  onContinue: () => void;
 }
 
-export function QuizResults({
-    score,
-    totalQuestions,
-    pointsEarned,
-    onRetry,
-    onContinue,
-    isRetry = false
-}: QuizResultsProps) {
-    const percentage = Math.round((score / totalQuestions) * 100);
-    const passed = percentage >= 70;
-
-    return (
-        <div className="text-center space-y-6 animate-fade-in">
-            {/* Result icon */}
-            <div className={cn(
-                'w-24 h-24 mx-auto rounded-full flex items-center justify-center',
-                passed
-                    ? 'bg-gradient-to-br from-green-400 to-green-500 animate-bounce-subtle'
-                    : 'bg-gradient-to-br from-orange-400 to-red-500'
-            )}>
-                {passed ? (
-                    <Trophy size={48} className="text-white" />
-                ) : (
-                    <RefreshCcw size={48} className="text-white" />
-                )}
-            </div>
-
-            {/* Result message */}
-            <div>
-                <h2 className={cn(
-                    'text-2xl font-bold mb-2',
-                    passed ? 'text-green-600' : 'text-orange-600'
-                )}>
-                    {passed ? 'Congratulations!' : 'Almost there!'}
-                </h2>
-                <p className="text-text-secondary">
-                    {passed
-                        ? 'You\'ve proven your understanding!'
-                        : 'You need 70% to pass. Try again!'}
-                </p>
-            </div>
-
-            {/* Score display */}
-            <div className="bg-gray-50 rounded-2xl p-6 max-w-sm mx-auto">
-                <div className="text-5xl font-bold gradient-text mb-2">
-                    {score}/{totalQuestions}
-                </div>
-                <p className="text-text-secondary mb-4">
-                    {percentage}% correct
-                </p>
-
-                {/* Points earned */}
-                {passed && (
-                    <div className="flex items-center justify-center gap-2 bg-green-100 text-green-700 rounded-full py-2 px-4">
-                        <Star className="text-yellow-500" size={20} />
-                        <span className="font-bold">+{pointsEarned} points earned!</span>
-                        {!isRetry && <Sparkles size={16} className="text-yellow-500" />}
-                    </div>
-                )}
-            </div>
-
-            {/* Question breakdown */}
-            <div className="flex justify-center gap-3">
-                {Array.from({ length: totalQuestions }).map((_, i) => (
-                    <div
-                        key={i}
-                        className={cn(
-                            'w-10 h-10 rounded-full flex items-center justify-center',
-                            i < score ? 'bg-green-100' : 'bg-red-100'
-                        )}
-                    >
-                        {i < score ? (
-                            <CheckCircle size={20} className="text-green-600" />
-                        ) : (
-                            <XCircle size={20} className="text-red-500" />
-                        )}
-                    </div>
-                ))}
-            </div>
-
-            {/* Actions */}
-            <div className="flex justify-center gap-3">
-                {!passed && onRetry && (
-                    <Button variant="outline" onClick={onRetry}>
-                        <RefreshCcw size={18} className="mr-2" />
-                        Try Again (30 pts)
-                    </Button>
-                )}
-                <Button onClick={onContinue} variant={passed ? 'success' : 'default'}>
-                    {passed ? 'View Unlocked Answer' : 'Continue Anyway'}
-                    <ArrowRight size={18} className="ml-2" />
-                </Button>
-            </div>
-
-            {/* Encouraging message */}
-            <p className="text-sm text-text-secondary">
-                {passed
-                    ? '🌟 Your humanized answer and study materials are now available!'
-                    : '💪 Don\'t give up! Understanding takes practice.'}
-            </p>
-        </div>
-    );
+export function QuizResults({ score, totalQuestions, pointsEarned, isRetry, onRetry, onContinue }: QuizResultsProps) {
+  const passed = pointsEarned > 0;
+  const percent = Math.round((score / totalQuestions) * 100);
+  return (
+    <div>
+      <p className="label">{passed ? 'Gate passed' : 'Gate closed'}</p>
+      <p className="tnum mt-3 font-display text-hero leading-none">
+        {score}
+        <span className="text-ink-3">/{totalQuestions}</span>
+      </p>
+      <p className="mt-4 text-ink-2">
+        {passed
+          ? `${percent} percent. The bars are lifting and you earned ${pointsEarned} points${isRetry ? ' for the retry' : ''}.`
+          : `${percent} percent. You need 70 to open the answer. Try an easier set, or leave it locked for now.`}
+      </p>
+      <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+        {onRetry ? (
+          <Button variant="crimson" onClick={onRetry}>
+            Try an easier set
+          </Button>
+        ) : null}
+        <Button variant={passed ? 'crimson' : 'outline'} onClick={onContinue}>
+          {passed ? 'Open my study sheet' : 'Leave it locked'}
+        </Button>
+      </div>
+    </div>
+  );
 }

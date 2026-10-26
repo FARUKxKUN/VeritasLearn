@@ -1,184 +1,117 @@
-import React, { useState, useCallback } from 'react';
-import { Question } from '../../types';
-import { QuizTimer } from './QuizTimer';
-import { Button, Progress } from '../ui';
+import { useCallback, useEffect, useState } from 'react';
+import { Check, X } from '@phosphor-icons/react';
+import type { Question } from '../../types';
+import { Button } from '../ui/Button';
 import { cn } from '../../lib/utils';
-import { CheckCircle, XCircle, ChevronRight } from 'lucide-react';
 
 interface QuizInterfaceProps {
-    questions: Question[];
-    onComplete: (score: number, totalQuestions: number) => void;
+  questions: Question[];
+  onComplete: (correct: number, total: number) => void;
 }
 
+const LETTERS = ['A', 'B', 'C', 'D'] as const;
+
 export function QuizInterface({ questions, onComplete }: QuizInterfaceProps) {
-    const [currentIndex, setCurrentIndex] = useState(0);
-    const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
-    const [isAnswered, setIsAnswered] = useState(false);
-    const [correctAnswers, setCorrectAnswers] = useState(0);
-    const [timerActive, setTimerActive] = useState(true);
+  const [index, setIndex] = useState(0);
+  const [selected, setSelected] = useState<number | null>(null);
+  const [submitted, setSubmitted] = useState(false);
+  const [correct, setCorrect] = useState(0);
+  const question = questions[index];
+  const [remaining, setRemaining] = useState(question.timeLimit);
 
-    const currentQuestion = questions[currentIndex];
-    const isCorrect = selectedAnswer === currentQuestion.correctAnswer;
-    const progress = ((currentIndex + 1) / questions.length) * 100;
+  const submit = useCallback(
+    (choice: number | null) => {
+      setSubmitted(true);
+      if (choice !== null && choice === question.correctAnswer) setCorrect((value) => value + 1);
+    },
+    [question.correctAnswer],
+  );
 
-    const handleTimeUp = useCallback(() => {
-        if (!isAnswered) {
-            setIsAnswered(true);
-            setTimerActive(false);
-        }
-    }, [isAnswered]);
+  useEffect(() => {
+    if (submitted) return;
+    const id = window.setTimeout(() => {
+      if (remaining <= 1) {
+        setRemaining(0);
+        submit(selected);
+      } else {
+        setRemaining(remaining - 1);
+      }
+    }, 1000);
+    return () => window.clearTimeout(id);
+  }, [remaining, submitted, selected, submit]);
 
-    const handleSelectAnswer = (index: number) => {
-        if (isAnswered) return;
-        setSelectedAnswer(index);
-    };
+  const next = () => {
+    if (index + 1 >= questions.length) {
+      onComplete(correct, questions.length);
+      return;
+    }
+    const upcoming = questions[index + 1];
+    setIndex(index + 1);
+    setSelected(null);
+    setSubmitted(false);
+    setRemaining(upcoming.timeLimit);
+  };
 
-    const handleSubmit = () => {
-        if (selectedAnswer === null) return;
+  const urgent = remaining <= 10 && !submitted;
 
-        setIsAnswered(true);
-        setTimerActive(false);
+  return (
+    <div>
+      <div className="flex items-baseline justify-between">
+        <p className="label">
+          Question {index + 1} of {questions.length}
+        </p>
+        <p className={cn('tnum font-mono text-h3', urgent && 'text-crimson')} role="timer" aria-label={`${remaining} seconds left`}>
+          0:{String(Math.max(remaining, 0)).padStart(2, '0')}
+        </p>
+      </div>
+      <h2 className="mt-4 text-h2">{question.question}</h2>
 
-        if (selectedAnswer === currentQuestion.correctAnswer) {
-            setCorrectAnswers(prev => prev + 1);
-        }
-    };
-
-    const handleNext = () => {
-        if (currentIndex < questions.length - 1) {
-            setCurrentIndex(prev => prev + 1);
-            setSelectedAnswer(null);
-            setIsAnswered(false); setTimerActive(true);
-        } else {
-            // Quiz complete
-            onComplete(correctAnswers, questions.length);
-        }
-    };
-
-    return (
-        <div className="space-y-6 no-select">
-            {/* Progress header */}
-            <div className="space-y-3">
-                <div className="flex items-center justify-between text-sm">
-                    <span className="font-medium text-text-primary">
-                        Question {currentIndex + 1} of {questions.length}
-                    </span>
-                    <span className="text-text-secondary">
-                        {correctAnswers} correct so far
-                    </span>
-                </div>
-                <Progress value={progress} color="primary" />
-            </div>
-
-            {/* Timer */}
-            <QuizTimer
-                duration={currentQuestion.timeLimit}
-                onTimeUp={handleTimeUp}
-                isActive={timerActive}
-            />
-
-            {/* Question */}
-            <div className="bg-gray-50 rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-text-primary mb-6">
-                    {currentQuestion.question}
-                </h3>
-
-                {/* Options */}
-                <div className="space-y-3">
-                    {currentQuestion.options.map((option, index) => {
-                        const isSelected = selectedAnswer === index;
-                        const isCorrectAnswer = index === currentQuestion.correctAnswer;
-
-                        let optionStyle = 'border-gray-200 bg-white hover:border-primary-300 hover:bg-primary-50';
-
-                        if (isAnswered) {
-                            if (isCorrectAnswer) {
-                                optionStyle = 'border-green-500 bg-green-50';
-                            } else if (isSelected && !isCorrectAnswer) {
-                                optionStyle = 'border-red-500 bg-red-50';
-                            } else {
-                                optionStyle = 'border-gray-200 bg-gray-50 opacity-60';
-                            }
-                        } else if (isSelected) {
-                            optionStyle = 'border-primary-500 bg-primary-50';
-                        }
-
-                        return (
-                            <button
-                                key={index}
-                                onClick={() => handleSelectAnswer(index)}
-                                disabled={isAnswered}
-                                className={cn(
-                                    'w-full flex items-center gap-4 p-4 rounded-xl border-2 text-left transition-all',
-                                    optionStyle,
-                                    !isAnswered && 'cursor-pointer'
-                                )}
-                            >
-                                <span className={cn(
-                                    'flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-medium text-sm',
-                                    isSelected && !isAnswered ? 'bg-primary-500 text-white' : 'bg-gray-200 text-gray-600'
-                                )}>
-                                    {String.fromCharCode(65 + index)}
-                                </span>
-                                <span className="flex-1 text-text-primary">{option}</span>
-                                {isAnswered && isCorrectAnswer && (
-                                    <CheckCircle size={20} className="text-green-500" />
-                                )}
-                                {isAnswered && isSelected && !isCorrectAnswer && (
-                                    <XCircle size={20} className="text-red-500" />
-                                )}
-                            </button>
-                        );
-                    })}
-                </div>
-            </div>
-
-            {/* Explanation (shown after answering) */}
-            {isAnswered && (
-                <div className={cn(
-                    'p-4 rounded-xl animate-fade-in',
-                    isCorrect ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'
-                )}>
-                    <div className="flex items-center gap-2 mb-2">
-                        {isCorrect ? (
-                            <>
-                                <CheckCircle size={20} className="text-green-600" />
-                                <span className="font-semibold text-green-700">Correct!</span>
-                            </>
-                        ) : (
-                            <>
-                                <XCircle size={20} className="text-red-600" />
-                                <span className="font-semibold text-red-700">
-                                    {selectedAnswer === null ? 'Time\'s up!' : 'Incorrect'}
-                                </span>
-                            </>
-                        )}
-                    </div>
-                    <p className="text-sm text-text-secondary">
-                        {currentQuestion.explanation}
-                    </p>
-                </div>
-            )}
-
-            {/* Actions */}
-            <div className="flex justify-end gap-3">
-                {!isAnswered ? (
-                    <Button
-                        onClick={handleSubmit}
-                        disabled={selectedAnswer === null}
-                    >
-                        Submit Answer
-                    </Button>
-                ) : (
-                    <Button
-                        onClick={handleNext}
-                        className="group"
-                    >
-                        {currentIndex < questions.length - 1 ? 'Next Question' : 'See Results'}
-                        <ChevronRight size={18} className="ml-1 group-hover:translate-x-1 transition-transform" />
-                    </Button>
+      <ul className="mt-6 space-y-2">
+        {question.options.map((option, optionIndex) => {
+          const isCorrect = submitted && optionIndex === question.correctAnswer;
+          const isWrong = submitted && optionIndex === selected && optionIndex !== question.correctAnswer;
+          return (
+            <li key={option}>
+              <button
+                type="button"
+                disabled={submitted}
+                aria-pressed={selected === optionIndex}
+                onClick={() => setSelected(optionIndex)}
+                className={cn(
+                  'flex min-h-12 w-full items-center gap-4 border-2 px-4 py-3 text-left transition-colors',
+                  selected === optionIndex && !submitted && 'border-ink bg-sunk',
+                  selected !== optionIndex && !submitted && 'border-line hover:border-ink',
+                  isCorrect && 'border-ink bg-ink text-paper',
+                  isWrong && 'border-crimson bg-crimson-tint',
+                  submitted && !isCorrect && !isWrong && 'border-line opacity-60',
                 )}
-            </div>
+              >
+                <span className="font-mono text-label">{LETTERS[optionIndex]}</span>
+                <span className="flex-1">{option}</span>
+                {isCorrect ? <Check size={20} weight="bold" aria-label="Correct answer" /> : null}
+                {isWrong ? <X size={20} weight="bold" aria-label="Your answer, incorrect" className="text-crimson" /> : null}
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+
+      {submitted ? (
+        <div className="mt-6 border-l-4 border-crimson pl-4">
+          <p className="label">{remaining <= 0 && selected === null ? 'Out of time' : 'Why'}</p>
+          <p className="mt-1 text-ink-2">{question.explanation}</p>
         </div>
-    );
+      ) : null}
+
+      <div className="mt-8">
+        {submitted ? (
+          <Button onClick={next}>{index + 1 >= questions.length ? 'See result' : 'Next question'}</Button>
+        ) : (
+          <Button variant="crimson" disabled={selected === null} onClick={() => submit(selected)}>
+            Lock in answer
+          </Button>
+        )}
+      </div>
+    </div>
+  );
 }

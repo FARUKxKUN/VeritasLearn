@@ -1,175 +1,122 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { Header } from '../components/shared/Header';
 import { ChatInterface } from '../components/chat/ChatInterface';
 import { ComprehensionGate } from '../components/quiz/ComprehensionGate';
 import { QuizInterface } from '../components/quiz/QuizInterface';
 import { QuizResults } from '../components/quiz/QuizResults';
 import { StudyMaterials } from '../components/quiz/StudyMaterials';
-import { Dialog, DialogContent, Button } from '../components/ui';
+import { Sheet } from '../components/ui/Sheet';
+import { Button } from '../components/ui/Button';
+import { PrototypeNote } from '../components/ui/PrototypeNote';
 import { useApp } from '../contexts/AppContext';
-import { getFallbackResponse, StudyData } from '../utils/mockData';
+import { getFallbackResponse, type StudyData } from '../utils/mockData';
 
 type ModalState = 'closed' | 'gate' | 'quiz' | 'results' | 'study';
 
-export function ChatPage() {
-    const { messages, updateMessage, addScore, updateStats, stats } = useApp();
-    const [modalState, setModalState] = useState<ModalState>('closed');
-    const [currentMessageId, setCurrentMessageId] = useState<string | null>(null);
-    const [currentStudyData, setCurrentStudyData] = useState<StudyData | null>(null);
-    const [quizScore, setQuizScore] = useState({ correct: 0, total: 0, points: 0 });
-    const [isRetry, setIsRetry] = useState(false);
+const PASS_RATIO = 0.7;
+const POINTS_FIRST_TRY = 50;
+const POINTS_RETRY = 30;
 
-    const handleOpenGate = useCallback((messageId: string) => {
-        setCurrentMessageId(messageId);
-        // Get the original user question to find proper study data
-        const messageIndex = messages.findIndex(m => m.id === messageId);
-        if (messageIndex > 0) {
-            const userQuestion = messages[messageIndex - 1].content;
-            setCurrentStudyData(getFallbackResponse(userQuestion));
-        }
-        setModalState('gate');
-        setIsRetry(false);
-    }, [messages]);
+export default function ChatPage() {
+  const { messages, updateMessage, addScore, updateStats, stats } = useApp();
+  const [modal, setModal] = useState<ModalState>('closed');
+  const [messageId, setMessageId] = useState<string | null>(null);
+  const [study, setStudy] = useState<StudyData | null>(null);
+  const [result, setResult] = useState({ correct: 0, total: 0, points: 0 });
+  const [isRetry, setIsRetry] = useState(false);
 
-    const handleCopy = useCallback(() => {
-        if (currentMessageId) {
-            updateMessage(currentMessageId, { locked: false, unlocked: true });
-            addScore(0, 'Copied AI answer without quiz');
-        }
-        setModalState('closed');
-        setCurrentStudyData(null);
-    }, [currentMessageId, updateMessage, addScore]);
+  const reset = () => {
+    setModal('closed');
+    setStudy(null);
+    setMessageId(null);
+    setIsRetry(false);
+  };
 
-    const handleLearn = useCallback(() => {
-        setModalState('quiz');
-    }, []);
+  const openGate = (id: string) => {
+    const index = messages.findIndex((message) => message.id === id);
+    if (index < 1) return;
+    setMessageId(id);
+    setStudy(getFallbackResponse(messages[index - 1].content));
+    setIsRetry(false);
+    setModal('gate');
+  };
 
-    const handleQuizComplete = useCallback((correct: number, total: number) => {
-        const percentage = (correct / total) * 100;
-        const passed = percentage >= 70;
-        const points = passed ? (isRetry ? 30 : 50) : 0;
+  const copyAnswer = () => {
+    if (messageId) {
+      updateMessage(messageId, { locked: false, unlocked: true, unlockedWith: 'copy' });
+      addScore(0, 'Copied the AI answer without the quiz');
+    }
+    reset();
+  };
 
-        setQuizScore({ correct, total, points });
+  const finishQuiz = (correct: number, total: number) => {
+    const passed = correct / total >= PASS_RATIO;
+    const points = passed ? (isRetry ? POINTS_RETRY : POINTS_FIRST_TRY) : 0;
+    setResult({ correct, total, points });
+    if (passed && messageId) {
+      updateMessage(messageId, { locked: false, unlocked: true, unlockedWith: 'quiz' });
+      addScore(points, `Passed the quiz${isRetry ? ' (retry)' : ''}: ${correct}/${total} correct`);
+      updateStats({
+        questionsAnswered: stats.questionsAnswered + 1,
+        quizPassRate: Math.round((stats.quizPassRate * stats.questionsAnswered + 100) / (stats.questionsAnswered + 1)),
+      });
+    }
+    setModal('results');
+  };
 
-        if (passed && currentMessageId) {
-            updateMessage(currentMessageId, {
-                locked: false,
-                unlocked: true
-            });
-            addScore(points, `Passed quiz${isRetry ? ' (retry)' : ''}: ${correct}/${total} correct`);
-            updateStats({
-                questionsAnswered: stats.questionsAnswered + 1,
-                quizPassRate: Math.round(((stats.quizPassRate * stats.questionsAnswered + 100) / (stats.questionsAnswered + 1)))
-            });
-        }
+  return (
+    <div className="min-h-dvh">
+      <Header />
+      <main id="main" className="shell py-6">
+        <ChatInterface onOpenGate={openGate} />
+        <PrototypeNote className="py-4" />
+      </main>
 
-        setModalState('results');
-    }, [isRetry, currentMessageId, updateMessage, addScore, updateStats, stats]);
+      <ComprehensionGate
+        open={modal === 'gate'}
+        onClose={reset}
+        onCopy={copyAnswer}
+        onLearn={() => setModal('quiz')}
+      />
 
-    const handleRetry = useCallback(() => {
-        setIsRetry(true);
-        setModalState('quiz');
-    }, []);
+      <Sheet open={modal === 'quiz'} label="Comprehension quiz">
+        {study ? (
+          <QuizInterface
+            key={isRetry ? 'retry' : 'first'}
+            questions={isRetry ? study.easyQuiz : study.quiz}
+            onComplete={finishQuiz}
+          />
+        ) : null}
+      </Sheet>
 
-    const handleContinue = useCallback(() => {
-        // If passed, show study materials; otherwise just close
-        if (quizScore.points > 0 && currentStudyData) {
-            setModalState('study');
-        } else {
-            setModalState('closed');
-            setCurrentStudyData(null);
-            setCurrentMessageId(null);
-        }
-    }, [quizScore.points, currentStudyData]);
+      <Sheet open={modal === 'results'} label="Quiz result">
+        <QuizResults
+          score={result.correct}
+          totalQuestions={result.total}
+          pointsEarned={result.points}
+          isRetry={isRetry}
+          onRetry={
+            result.points === 0
+              ? () => {
+                  setIsRetry(true);
+                  setModal('quiz');
+                }
+              : undefined
+          }
+          onContinue={() => (result.points > 0 ? setModal('study') : reset())}
+        />
+      </Sheet>
 
-    const handleClose = useCallback(() => {
-        if (modalState === 'gate') {
-            setModalState('closed');
-            setCurrentStudyData(null);
-        }
-    }, [modalState]);
-
-    const handleCloseStudy = useCallback(() => {
-        setModalState('closed');
-        setCurrentStudyData(null);
-        setCurrentMessageId(null);
-    }, []);
-
-    return (
-        <div className="min-h-screen bg-background flex flex-col">
-            <Header />
-            <main className="flex-1 container-app py-6">
-                <div className="h-[calc(100vh-140px)]">
-                    <ChatInterface onOpenGate={handleOpenGate} />
-                </div>
-            </main>
-
-            {/* Comprehension Gate Modal */}
-            <ComprehensionGate
-                open={modalState === 'gate'}
-                onClose={handleClose}
-                onCopy={handleCopy}
-                onLearn={handleLearn}
-            />
-
-            {/* Quiz Modal */}
-            <Dialog
-                open={modalState === 'quiz'}
-                onClose={() => { }}
-                className="max-w-2xl"
-            >
-                <DialogContent className="p-6">
-                    {currentStudyData && (
-                        <QuizInterface
-                            questions={isRetry ? currentStudyData.easyQuiz : currentStudyData.quiz}
-                            onComplete={handleQuizComplete}
-                        />
-                    )}
-                </DialogContent>
-            </Dialog>
-
-            {/* Results Modal */}
-            <Dialog
-                open={modalState === 'results'}
-                onClose={() => { }}
-                className="max-w-lg"
-            >
-                <DialogContent className="p-6">
-                    <QuizResults
-                        score={quizScore.correct}
-                        totalQuestions={quizScore.total}
-                        pointsEarned={quizScore.points}
-                        onRetry={quizScore.points === 0 ? handleRetry : undefined}
-                        onContinue={handleContinue}
-                        isRetry={isRetry}
-                    />
-                </DialogContent>
-            </Dialog>
-
-            {/* Study Materials Modal */}
-            <Dialog
-                open={modalState === 'study'}
-                onClose={handleCloseStudy}
-                className="max-w-3xl max-h-[90vh] overflow-y-auto"
-            >
-                <DialogContent className="p-6">
-                    {currentStudyData && (
-                        <>
-                            <StudyMaterials
-                                topic={currentStudyData.topic}
-                                summary={currentStudyData.humanized}
-                                keyPoints={currentStudyData.keyPoints}
-                                flashcards={currentStudyData.flashcards}
-                            />
-                            <div className="mt-6 flex justify-center">
-                                <Button onClick={handleCloseStudy} size="lg">
-                                    Back to Chat
-                                </Button>
-                            </div>
-                        </>
-                    )}
-                </DialogContent>
-            </Dialog>
-        </div>
-    );
+      <Sheet open={modal === 'study'} onClose={reset} label="Study sheet" className="w-[min(48rem,calc(100%-1.5rem))]">
+        {study ? (
+          <>
+            <StudyMaterials topic={study.topic} summary={study.humanized} keyPoints={study.keyPoints} flashcards={study.flashcards} />
+            <div className="mt-10">
+              <Button onClick={reset}>Back to the answer</Button>
+            </div>
+          </>
+        ) : null}
+      </Sheet>
+    </div>
+  );
 }
