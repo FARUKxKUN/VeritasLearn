@@ -85,9 +85,9 @@ This is the clickable prototype, redesigned. The tutor's answers, quizzes, score
 
 | | Role |
 |---|---|
-| [Yassine Bouteraa](https://github.com/yassinebouteraa) | Concept and pitch |
-| [Rayen Chatti](https://github.com/rayenchatti) | Concept and pitch |
-| **Farouk Battikh** ([@FARUKxKUN](https://github.com/FARUKxKUN)) | Built the prototype and the redesign: design, front end, the gate and game loop |
+| [Rayen Chatti](https://github.com/rayenchatti) | Concept, pitch deck design |
+| [Yassine Bouteraa](https://github.com/yassinebouteraa) | Concept, pitch deck design, pitch |
+| **Farouk Battikh** ([@FARUKxKUN](https://github.com/FARUKxKUN)) | Prototype and its redesign, pitch |
 
 ## License
 
