@@ -8,7 +8,7 @@ This repo is the clickable prototype we presented. AI responses and leaderboard 
 
 ## Team
 
-Built as a team. My teammates led the concept and the pitch. I built the prototype.
+Built as a team. Our teammates led the concept and the pitch. Farouk Battikh and Yassine Bouteraa built the prototype together.
 
 ## What's in the prototype
 
