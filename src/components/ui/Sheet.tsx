@@ -26,7 +26,7 @@ export function Sheet({ open, onClose, label, children, className }: SheetProps)
       ref={ref}
       aria-label={label}
       className={cn(
-        'sheet m-auto w-[min(42rem,calc(100%-1.5rem))] max-h-[calc(100dvh-1.5rem)] overflow-y-auto rounded-edge border-2 border-ink bg-surface p-0 text-ink max-md:mb-3',
+        'sheet m-auto w-[min(42rem,calc(100%-1.5rem))] max-h-[calc(100dvh-1.5rem)] overflow-y-auto rounded-[1.75rem] border-2 border-ink bg-surface p-0 text-ink shadow-[0_8px_0_0_var(--color-ink)] max-md:mb-3',
         className,
       )}
       onCancel={(event) => {

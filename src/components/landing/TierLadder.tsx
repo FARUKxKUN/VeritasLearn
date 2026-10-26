@@ -8,7 +8,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 const TIERS = Object.values(TierType);
 
-/** The ladder fills in as you scroll, one stamp per tier. Static when reduced motion is on. */
+/** The quest path: six medals on a winding trail. They pop in one by one as you scroll. */
 export function TierLadder() {
   const root = useRef<HTMLElement>(null);
 
@@ -17,35 +17,43 @@ export function TierLadder() {
     if (!element) return;
     const mm = gsap.matchMedia();
     mm.add('(prefers-reduced-motion: no-preference)', () => {
-      const stamps = element.querySelectorAll('[data-stamp]');
-      gsap.set(stamps, { opacity: 0.18, y: 24 });
-      gsap.to(stamps, {
+      const nodes = element.querySelectorAll('[data-node]');
+      gsap.set(nodes, { opacity: 0.15, scale: 0.6, y: 30 });
+      gsap.to(nodes, {
         opacity: 1,
+        scale: 1,
         y: 0,
-        stagger: 0.18,
-        ease: 'none',
-        scrollTrigger: { trigger: element, start: 'top 75%', end: 'bottom 70%', scrub: 0.6 },
+        stagger: 0.2,
+        ease: 'back.out(2)',
+        scrollTrigger: { trigger: element, start: 'top 70%', end: 'center 55%', scrub: 0.8 },
       });
     });
     return () => mm.revert();
   }, []);
 
   return (
-    <section ref={root} aria-labelledby="tiers" className="border-t-2 border-ink bg-ink py-28 text-paper">
+    <section ref={root} aria-labelledby="tiers" className="overflow-hidden border-y-2 border-ink bg-ink py-28 text-paper">
       <div className="shell">
-        <h2 id="tiers" className="text-h1">
-          Six tiers, earned.
+        <p className="label !text-sun">The quest</p>
+        <h2 id="tiers" className="mt-3 text-h1">
+          Six tiers to climb.
         </h2>
-        <p className="mt-4 max-w-xl text-paper/80">Points come only from passed gates. Copying never moves you.</p>
-        <ol className="mt-16 grid grid-cols-2 gap-x-6 gap-y-12 sm:grid-cols-3 lg:grid-cols-6">
-          {TIERS.map((tier) => (
-            <li key={tier} data-stamp className="flex flex-col items-start gap-4">
-              <span className="rounded-full bg-paper p-1">
-                <Stamp tier={tier} size="md" />
-              </span>
+        <p className="mt-4 max-w-xl text-paper/80">XP comes only from beaten quizzes. Copying never moves you up.</p>
+        <ol className="relative mt-20 grid grid-cols-2 gap-x-6 gap-y-14 sm:grid-cols-3 lg:grid-cols-6 lg:gap-y-0">
+          <span
+            aria-hidden
+            className="absolute left-[8%] right-[8%] top-1/2 hidden border-t-4 border-dashed border-paper/25 lg:block"
+          />
+          {TIERS.map((tier, index) => (
+            <li
+              key={tier}
+              data-node
+              className={`relative flex flex-col items-center gap-4 text-center ${index % 2 === 1 ? 'lg:mt-16' : 'lg:mb-16'}`}
+            >
+              <Stamp tier={tier} size="md" className="!shadow-[0_4px_0_0_var(--color-sun)]" />
               <div>
                 <p className="font-display text-h3">{TIER_CONFIG[tier].name}</p>
-                <p className="tnum font-mono text-label text-paper/70">{TIER_CONFIG[tier].minScore.toLocaleString('en-US')}+ pts</p>
+                <p className="tnum font-bold text-paper/70">{TIER_CONFIG[tier].minScore.toLocaleString('en-US')}+ XP</p>
               </div>
             </li>
           ))}

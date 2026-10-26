@@ -6,6 +6,7 @@ import { QuizInterface } from '../components/quiz/QuizInterface';
 import { QuizResults } from '../components/quiz/QuizResults';
 import { StudyMaterials } from '../components/quiz/StudyMaterials';
 import { Sheet } from '../components/ui/Sheet';
+import { Confetti } from '../components/ui/Confetti';
 import { Button } from '../components/ui/Button';
 import { PrototypeNote } from '../components/ui/PrototypeNote';
 import { useApp } from '../contexts/AppContext';
@@ -24,6 +25,7 @@ export default function ChatPage() {
   const [study, setStudy] = useState<StudyData | null>(null);
   const [result, setResult] = useState({ correct: 0, total: 0, points: 0 });
   const [isRetry, setIsRetry] = useState(false);
+  const [burst, setBurst] = useState(0);
 
   const reset = () => {
     setModal('closed');
@@ -53,6 +55,7 @@ export default function ChatPage() {
     const passed = correct / total >= PASS_RATIO;
     const points = passed ? (isRetry ? POINTS_RETRY : POINTS_FIRST_TRY) : 0;
     setResult({ correct, total, points });
+    if (passed) setBurst((value) => value + 1);
     if (passed && messageId) {
       updateMessage(messageId, { locked: false, unlocked: true, unlockedWith: 'quiz' });
       addScore(points, `Passed the quiz${isRetry ? ' (retry)' : ''}: ${correct}/${total} correct`);
@@ -71,6 +74,8 @@ export default function ChatPage() {
         <ChatInterface onOpenGate={openGate} />
         <PrototypeNote className="py-4" />
       </main>
+
+      <Confetti burst={burst} />
 
       <ComprehensionGate
         open={modal === 'gate'}
@@ -112,7 +117,7 @@ export default function ChatPage() {
           <>
             <StudyMaterials topic={study.topic} summary={study.humanized} keyPoints={study.keyPoints} flashcards={study.flashcards} />
             <div className="mt-10">
-              <Button onClick={reset}>Back to the answer</Button>
+              <Button variant="crimson" onClick={reset}>Back to the answer</Button>
             </div>
           </>
         ) : null}

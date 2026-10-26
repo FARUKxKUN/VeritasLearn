@@ -8,7 +8,7 @@ interface TabsProps<T extends string> {
   label: string;
 }
 
-/** Underlined editorial tabs with arrow-key navigation. */
+/** Pill toggle with arrow-key navigation. */
 export function Tabs<T extends string>({ tabs, value, onChange, label }: TabsProps<T>) {
   const group = useId();
   const move = (event: KeyboardEvent, index: number) => {
@@ -20,7 +20,7 @@ export function Tabs<T extends string>({ tabs, value, onChange, label }: TabsPro
     document.getElementById(`${group}-${next.id}`)?.focus();
   };
   return (
-    <div role="tablist" aria-label={label} className="flex gap-6 border-b-2 border-ink">
+    <div role="tablist" aria-label={label} className="pop-sm inline-flex gap-1 p-1">
       {tabs.map((tab, index) => {
         const active = tab.id === value;
         return (
@@ -34,8 +34,8 @@ export function Tabs<T extends string>({ tabs, value, onChange, label }: TabsPro
             onClick={() => onChange(tab.id)}
             onKeyDown={(event) => move(event, index)}
             className={cn(
-              '-mb-0.5 min-h-11 border-b-4 px-1 font-medium transition-colors',
-              active ? 'border-crimson text-ink' : 'border-transparent text-ink-3 hover:text-ink',
+              'min-h-11 rounded-full px-6 font-extrabold transition-colors',
+              active ? 'bg-crimson text-white' : 'text-ink-2 hover:bg-sunk',
             )}
           >
             {tab.label}

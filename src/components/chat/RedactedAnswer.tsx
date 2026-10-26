@@ -48,8 +48,8 @@ export function RedactedAnswer({ text, locked, className }: RedactedAnswerProps)
           return (
             <p key={lineIndex} className={cn(line.marker && 'flex gap-3')}>
               {line.marker ? (
-                <span aria-hidden className="w-6 shrink-0 font-mono text-label text-ink-3">
-                  {line.marker === '-' ? '·' : line.marker}
+                <span aria-hidden className="w-6 shrink-0 font-extrabold text-sun-deep">
+                  {line.marker === '-' ? '•' : line.marker}
                 </span>
               ) : null}
               <span>

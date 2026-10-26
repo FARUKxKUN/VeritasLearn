@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Check, X } from '@phosphor-icons/react';
+import { Check, Timer, X } from '@phosphor-icons/react';
 import type { Question } from '../../types';
 import { Button } from '../ui/Button';
+import { Mascot } from '../ui/Mascot';
 import { cn } from '../../lib/utils';
 
 interface QuizInterfaceProps {
@@ -59,20 +60,36 @@ export function QuizInterface({ questions, onComplete }: QuizInterfaceProps) {
   if (!question) return <p>No questions available.</p>;
 
   const urgent = remaining <= 10 && !submitted;
+  const gotIt = submitted && selected === question.correctAnswer;
 
   return (
     <div>
-      <div className="flex items-baseline justify-between">
-        <p className="label">
-          Question {index + 1} of {questions.length}
-        </p>
-        <p className={cn('tnum font-mono text-h3', urgent && 'text-crimson')} role="timer" aria-label={`${remaining} seconds left`}>
-          0:{String(Math.max(remaining, 0)).padStart(2, '0')}
+      <div className="flex items-center justify-between gap-4">
+        <ol className="flex gap-2" aria-label={`Question ${index + 1} of ${questions.length}`}>
+          {questions.map((q, i) => (
+            <li
+              key={q.id}
+              className={cn(
+                'h-3 w-10 rounded-full border-2 border-ink',
+                i < index ? 'bg-mint' : i === index ? 'bg-sun' : 'bg-surface',
+              )}
+            />
+          ))}
+        </ol>
+        <p
+          role="timer"
+          aria-label={`${remaining} seconds left`}
+          className={cn(
+            'tnum pop-sm flex min-h-10 items-center gap-1 px-4 font-extrabold',
+            urgent && 'animate-pulse bg-crimson text-white',
+          )}
+        >
+          <Timer size={20} weight="fill" aria-hidden /> 0:{String(Math.max(remaining, 0)).padStart(2, '0')}
         </p>
       </div>
-      <h2 className="mt-4 text-h2">{question.question}</h2>
+      <h2 className="mt-6 text-h2">{question.question}</h2>
 
-      <ul className="mt-6 space-y-2">
+      <ul className="mt-6 space-y-3">
         {question.options.map((option, optionIndex) => {
           const isCorrect = submitted && optionIndex === question.correctAnswer;
           const isWrong = submitted && optionIndex === selected && optionIndex !== question.correctAnswer;
@@ -84,18 +101,20 @@ export function QuizInterface({ questions, onComplete }: QuizInterfaceProps) {
                 aria-pressed={selected === optionIndex}
                 onClick={() => setSelected(optionIndex)}
                 className={cn(
-                  'flex min-h-12 w-full items-center gap-4 border-2 px-4 py-3 text-left transition-colors',
-                  selected === optionIndex && !submitted && 'border-ink bg-sunk',
-                  selected !== optionIndex && !submitted && 'border-line hover:border-ink',
-                  isCorrect && 'border-ink bg-ink text-paper',
-                  isWrong && 'border-crimson bg-crimson-tint',
-                  submitted && !isCorrect && !isWrong && 'border-line opacity-60',
+                  'flex min-h-14 w-full items-center gap-4 rounded-2xl border-2 border-ink px-4 py-3 text-left font-bold shadow-[0_4px_0_0_var(--color-ink)] transition-[transform,background-color,box-shadow]',
+                  !submitted && 'hover:-translate-y-0.5 active:translate-y-1 active:shadow-none',
+                  !submitted && (selected === optionIndex ? 'translate-y-0.5 bg-sun shadow-[0_2px_0_0_var(--color-ink)]' : 'bg-surface hover:bg-sun-tint'),
+                  isCorrect && 'pop-in bg-mint text-white',
+                  isWrong && 'shake bg-crimson-tint',
+                  submitted && !isCorrect && !isWrong && 'bg-surface opacity-55 shadow-none',
                 )}
               >
-                <span className="font-mono text-label">{LETTERS[optionIndex]}</span>
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-full border-2 border-current text-small font-extrabold">
+                  {LETTERS[optionIndex]}
+                </span>
                 <span className="flex-1">{option}</span>
-                {isCorrect ? <Check size={20} weight="bold" aria-label="Correct answer" /> : null}
-                {isWrong ? <X size={20} weight="bold" aria-label="Your answer, incorrect" className="text-crimson" /> : null}
+                {isCorrect ? <Check size={24} weight="bold" aria-label="Correct answer" /> : null}
+                {isWrong ? <X size={24} weight="bold" aria-label="Your answer, incorrect" className="text-crimson" /> : null}
               </button>
             </li>
           );
@@ -103,15 +122,20 @@ export function QuizInterface({ questions, onComplete }: QuizInterfaceProps) {
       </ul>
 
       {submitted ? (
-        <div className="mt-6 border-l-4 border-crimson pl-4">
-          <p className="label">{remaining <= 0 && selected === null ? 'Out of time' : 'Why'}</p>
-          <p className="mt-1 text-ink-2">{question.explanation}</p>
+        <div className="mt-6 flex items-start gap-4 rounded-2xl bg-sunk p-4">
+          <Mascot mood={gotIt ? 'happy' : 'sad'} size={56} />
+          <div>
+            <p className="font-extrabold">{gotIt ? 'Nice one!' : remaining <= 0 && selected === null ? 'Out of time!' : 'Not this time.'}</p>
+            <p className="mt-1 text-ink-2">{question.explanation}</p>
+          </div>
         </div>
       ) : null}
 
       <div className="mt-8">
         {submitted ? (
-          <Button onClick={next}>{index + 1 >= questions.length ? 'See result' : 'Next question'}</Button>
+          <Button variant="crimson" onClick={next}>
+            {index + 1 >= questions.length ? 'See result' : 'Next question'}
+          </Button>
         ) : (
           <Button variant="crimson" disabled={selected === null} onClick={() => submit(selected)}>
             Lock in answer

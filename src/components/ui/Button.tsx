@@ -2,16 +2,22 @@ import { forwardRef, type ButtonHTMLAttributes } from 'react';
 import { Link, type LinkProps } from 'react-router-dom';
 import { cn } from '../../lib/utils';
 
-type Variant = 'solid' | 'crimson' | 'outline' | 'ghost';
+type Variant = 'solid' | 'crimson' | 'sun' | 'outline' | 'ghost';
 
+/* Chunky game buttons: a hard shadow that the button sinks into when pressed. */
 const base =
-  'inline-flex min-h-11 items-center justify-center gap-2 rounded-edge px-5 font-medium leading-none transition-[background-color,color,transform,border-color] duration-150 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-45';
+  'inline-flex min-h-12 items-center justify-center gap-2 rounded-full border-2 border-ink px-6 text-base font-extrabold leading-none ' +
+  'transition-[transform,box-shadow,background-color] duration-150 ' +
+  'shadow-[0_4px_0_0_var(--color-ink)] hover:-translate-y-0.5 hover:shadow-[0_6px_0_0_var(--color-ink)] ' +
+  'active:translate-y-1 active:shadow-[0_0_0_0_var(--color-ink)] ' +
+  'disabled:cursor-not-allowed disabled:opacity-45 disabled:shadow-none disabled:hover:translate-y-0';
 
 const variants: Record<Variant, string> = {
   solid: 'bg-ink text-paper hover:bg-ink-2',
-  crimson: 'bg-crimson text-paper hover:bg-crimson-deep',
-  outline: 'border-2 border-ink text-ink hover:bg-ink hover:text-paper',
-  ghost: 'text-ink hover:bg-sunk',
+  crimson: 'bg-crimson text-white hover:bg-[#d52b27]',
+  sun: 'bg-sun text-ink hover:bg-[#ffd267]',
+  outline: 'bg-surface text-ink hover:bg-sun-tint',
+  ghost: 'border-transparent bg-transparent shadow-none hover:bg-sunk hover:shadow-none active:shadow-none',
 };
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {

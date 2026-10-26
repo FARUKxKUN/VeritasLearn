@@ -16,9 +16,9 @@ export function ScorePopup() {
             animate={{ opacity: 1, scale: 1, rotate: -3 }}
             exit={{ opacity: 0, y: -16 }}
             transition={SPRING_LIVELY}
-            className="bg-crimson px-5 py-2 font-display text-3xl text-paper"
+            className="rounded-full border-2 border-ink bg-sun px-6 py-2 font-display text-3xl text-ink shadow-[0_4px_0_0_var(--color-ink)]"
           >
-            +{scorePopup.points} points
+            +{scorePopup.points} XP
           </motion.p>
         ) : null}
       </AnimatePresence>

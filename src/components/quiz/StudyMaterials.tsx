@@ -13,7 +13,7 @@ export function StudyMaterials({ topic, summary, keyPoints, flashcards }: StudyM
   return (
     <div className="space-y-10">
       <header>
-        <p className="label">Study sheet</p>
+        <p className="label">Study sheet - bonus loot</p>
         <h2 className="mt-2 text-h1">{topic}</h2>
       </header>
 
@@ -28,11 +28,13 @@ export function StudyMaterials({ topic, summary, keyPoints, flashcards }: StudyM
         <h3 id="pts" className="label">
           Keep these
         </h3>
-        <ol className="mt-3 divide-y divide-line border-y-2 border-ink">
+        <ol className="mt-4 space-y-3">
           {keyPoints.map((point, index) => (
-            <li key={point} className="flex gap-4 py-3">
-              <span className="w-6 font-mono text-label text-crimson">{index + 1}</span>
-              <span>{point}</span>
+            <li key={point} className="flex items-start gap-4">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-full border-2 border-ink bg-sun font-extrabold">
+                {index + 1}
+              </span>
+              <span className="pt-1">{point}</span>
             </li>
           ))}
         </ol>

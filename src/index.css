@@ -1,50 +1,57 @@
 @import 'tailwindcss';
 
 /*
- * VeritasLearn design tokens - "Redacted Editorial", Gochujang palette.
- * One container, one spacing scale (Tailwind 4px steps), one type scale, one shape rule:
- * rectangles have a 2px edge, only tier stamps are circles. Nothing else is rounded.
+ * VeritasLearn design tokens - playful and gamified, Gochujang palette plus two game accents.
+ * One container, one spacing scale (Tailwind 4px steps), one type scale.
+ * Shape rule: pills for buttons and chips, one chunky card radius, circles for badges and the mascot.
+ * Depth rule: hard offset "sticker" shadows, never blur.
  */
 @theme {
   --font-display: 'Bricolage Grotesque Variable', ui-sans-serif, system-ui, sans-serif;
-  --font-serif: 'Newsreader Variable', ui-serif, Georgia, serif;
   --font-sans: 'Bricolage Grotesque Variable', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: 'Geist Mono Variable', ui-monospace, SFMono-Regular, monospace;
 
   --color-paper: #fbf1de;
-  --color-surface: #fff8ea;
+  --color-surface: #fffdf6;
   --color-sunk: #f2e3c4;
-  --color-line: #d9c6a0;
+  --color-line: #e2cfa8;
   --color-ink: #002f49;
   --color-ink-2: #264a60;
   --color-ink-3: #4b6577;
   --color-crimson: #c1221f;
   --color-crimson-deep: #780001;
-  --color-crimson-tint: #f5d5c8;
+  --color-crimson-tint: #f9d9cf;
+  --color-sun: #ffc53d;
+  --color-sun-deep: #b87d00;
+  --color-sun-tint: #fff0c2;
+  --color-mint: #168a4a;
+  --color-mint-tint: #d6f2e0;
+  --color-sky: #bfe4f3;
 
-  --radius-edge: 2px;
+  --radius-edge: 1rem;
+  --radius-card: 1.5rem;
 
-  --text-hero: clamp(2.75rem, 5.2vw, 5rem);
-  --text-hero--line-height: 1.02;
+  --text-hero: clamp(2.75rem, 6vw, 5.5rem);
+  --text-hero--line-height: 1;
   --text-hero--letter-spacing: -0.03em;
-  --text-h1: clamp(2.5rem, 5vw, 4.25rem);
-  --text-h1--line-height: 1.06;
-  --text-h1--letter-spacing: -0.028em;
-  --text-h2: clamp(1.75rem, 3.2vw, 2.75rem);
+  --text-h1: clamp(2.25rem, 4.6vw, 3.75rem);
+  --text-h1--line-height: 1.05;
+  --text-h1--letter-spacing: -0.025em;
+  --text-h2: clamp(1.75rem, 3vw, 2.5rem);
   --text-h2--line-height: 1.1;
-  --text-h2--letter-spacing: -0.024em;
-  --text-h3: 1.5rem;
+  --text-h2--letter-spacing: -0.02em;
+  --text-h3: 1.375rem;
   --text-h3--line-height: 1.2;
-  --text-h3--letter-spacing: -0.015em;
+  --text-h3--letter-spacing: -0.01em;
   --text-body: 1.125rem;
-  --text-body--line-height: 1.7;
+  --text-body--line-height: 1.65;
   --text-small: 0.9375rem;
   --text-small--line-height: 1.5;
   --text-label: 0.8125rem;
   --text-label--line-height: 1.3;
-  --text-label--letter-spacing: 0.06em;
+  --text-label--letter-spacing: 0.08em;
 
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-boing: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 @layer base {
@@ -61,12 +68,14 @@
     min-height: 100dvh;
     font-size: var(--text-body);
     line-height: var(--text-body--line-height);
+    background-image: radial-gradient(circle at 1px 1px, rgb(0 47 73 / 0.09) 1.5px, transparent 0);
+    background-size: 28px 28px;
   }
   h1,
   h2,
   h3 {
     font-family: var(--font-display);
-    font-weight: 700;
+    font-weight: 800;
     font-variation-settings: 'opsz' 96;
     text-wrap: balance;
   }
@@ -74,11 +83,11 @@
     text-wrap: pretty;
   }
   ::selection {
-    background: var(--color-crimson);
-    color: var(--color-paper);
+    background: var(--color-sun);
+    color: var(--color-ink);
   }
   :focus-visible {
-    outline: 3px solid var(--color-crimson);
+    outline: 3px solid var(--color-ink);
     outline-offset: 3px;
   }
   button,
@@ -98,25 +107,39 @@
     padding-inline: clamp(1.25rem, 5vw, 3.5rem);
   }
   .label {
-    font-family: var(--font-mono);
     font-size: var(--text-label);
     line-height: var(--text-label--line-height);
     letter-spacing: var(--text-label--letter-spacing);
     text-transform: uppercase;
+    font-weight: 800;
     color: var(--color-ink-3);
   }
-  .font-serif-answer {
-    font-family: var(--font-serif);
-    font-size: 1.1875rem;
-    line-height: 1.75;
-  }
   .font-display {
-    font-weight: 700;
+    font-weight: 800;
     letter-spacing: -0.02em;
   }
   .tnum {
     font-variant-numeric: tabular-nums;
   }
+  .font-serif-answer {
+    font-size: 1.125rem;
+    line-height: 1.75;
+  }
+
+  /* Sticker surfaces: a hard offset shadow instead of blur. */
+  .pop {
+    background: var(--color-surface);
+    border: 2px solid var(--color-ink);
+    border-radius: var(--radius-card);
+    box-shadow: 0 6px 0 0 var(--color-ink);
+  }
+  .pop-sm {
+    border: 2px solid var(--color-ink);
+    border-radius: 999px;
+    background: var(--color-surface);
+    box-shadow: 0 3px 0 0 var(--color-ink);
+  }
+
   .skip-link {
     position: absolute;
     left: 1rem;
@@ -125,6 +148,7 @@
     background: var(--color-ink);
     color: var(--color-paper);
     padding: 0.75rem 1.25rem;
+    border-radius: 999px;
     transition: top 0.2s;
   }
   .skip-link:focus {
@@ -132,13 +156,14 @@
   }
 
   /*
-   * The redaction. Each word of a locked answer is a bar. On unlock the bars lift one after
+   * The redaction. Each word of a locked answer is a censor bar. On unlock the bars lift one after
    * another (--i is the word index), which is the signature moment of the product.
    */
   .redacted-word {
     background: var(--color-ink);
     color: transparent;
     user-select: none;
+    border-radius: 0.3em;
     box-decoration-break: clone;
     -webkit-box-decoration-break: clone;
     padding-inline: 0.12em;
@@ -151,29 +176,31 @@
   .redacted-word[data-open='true'] {
     background: transparent;
     color: var(--color-ink);
-    box-shadow: inset 0 -0.42em 0 var(--color-crimson-tint);
+    box-shadow: inset 0 -0.42em 0 var(--color-sun-tint);
   }
 
-  /* The headline's own redaction: a single bar sized to the word, not to the line box. */
+  /* The headline's own censor bar: slides over the word and away again. The word stays real text underneath. */
   .redact-hero {
+    position: relative;
     display: inline-block;
+    color: var(--color-crimson-deep);
+  }
+  .redact-hero::after {
+    content: '';
+    position: absolute;
+    inset: 0.1em -0.05em 0.02em;
     background: var(--color-crimson);
-    color: transparent;
-    line-height: 0.7;
-    height: 0.72em;
-    transform-origin: left center;
-    animation: bar-breathe 5.5s var(--ease-out-soft) 1.4s infinite;
-    vertical-align: baseline;
-    padding-inline: 0.06em;
-    user-select: none;
+    border-radius: 0.2em;
+    transform-origin: right center;
+    animation: bar-sweep 5.5s var(--ease-out-soft) 1.4s infinite;
   }
 
   dialog.sheet {
     opacity: 0;
-    transform: translateY(24px);
+    transform: translateY(24px) scale(0.97);
     transition:
       opacity 0.25s ease,
-      transform 0.35s var(--ease-out-soft),
+      transform 0.4s var(--ease-boing),
       overlay 0.35s allow-discrete,
       display 0.35s allow-discrete;
   }
@@ -189,12 +216,12 @@
       display 0.35s allow-discrete;
   }
   dialog.sheet[open]::backdrop {
-    background-color: rgb(0 47 73 / 0.55);
+    background-color: rgb(0 47 73 / 0.6);
   }
   @starting-style {
     dialog.sheet[open] {
       opacity: 0;
-      transform: translateY(24px);
+      transform: translateY(24px) scale(0.97);
     }
     dialog.sheet[open]::backdrop {
       background-color: transparent;
@@ -202,14 +229,35 @@
   }
 }
 
-@keyframes bar-breathe {
-  0%, 38% { clip-path: inset(0 0 0 0); }
-  48%, 78% { clip-path: inset(0 0 0 100%); }
-  88%, 100% { clip-path: inset(0 0 0 0); }
+@keyframes bar-sweep {
+  0%, 38% { transform: scaleX(1); }
+  48%, 78% { transform: scaleX(0); }
+  88%, 100% { transform: scaleX(1); }
 }
 
-@keyframes marquee {
-  to { transform: translateX(-50%); }
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(-6deg); }
+  75% { transform: rotate(6deg); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(5px); }
+}
+
+@keyframes pop-in {
+  0% { transform: scale(0.85); }
+  60% { transform: scale(1.06); }
+  100% { transform: scale(1); }
 }
 
 @keyframes page-in {
@@ -221,7 +269,26 @@
   animation: page-in 0.5s var(--ease-out-soft) backwards;
 }
 
+.float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.shake {
+  animation: shake 0.45s ease-in-out;
+}
+
+.pop-in {
+  animation: pop-in 0.45s var(--ease-boing);
+}
+
+.hover-wiggle:hover {
+  animation: wiggle 0.5s ease-in-out;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .redact-hero::after {
+    display: none;
+  }
   *,
   *::before,
   *::after {
