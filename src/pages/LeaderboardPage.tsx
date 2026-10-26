@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Header } from '../components/shared/Header';
 import { Stamp } from '../components/ui/Stamp';
 import { Tabs } from '../components/ui/Tabs';
+import { Reveal } from '../components/ui/Reveal';
 import { PrototypeNote } from '../components/ui/PrototypeNote';
 import { useApp } from '../contexts/AppContext';
 import { MOCK_LEADERBOARD, MOCK_NATIONAL_LEADERBOARD } from '../utils/mockData';
@@ -30,7 +31,7 @@ export default function LeaderboardPage() {
   return (
     <div className="min-h-dvh">
       <Header />
-      <main id="main" className="shell py-10 md:py-16">
+      <main id="main" className="page-in shell py-14 md:py-24">
         <p className="label">Leaderboard</p>
         <h1 className="mt-3 text-h1">Points you earned, not answers you copied.</h1>
         <p className="mt-4 max-w-xl text-ink-2">
@@ -39,10 +40,13 @@ export default function LeaderboardPage() {
         <div className="mt-10">
           <Tabs tabs={TABS} value={scope} onChange={setScope} label="Leaderboard scope" />
           <ol className="divide-y divide-line">
-            {rows.map((row) => (
-              <li
+            {rows.map((row, i) => (
+              <Reveal
+                as="li"
+                delay={Math.min(i, 8) * 0.05}
+                y={14}
                 key={`${scope}-${row.name}`}
-                className={cn('flex items-center gap-4 py-4', row.isCurrentUser && 'bg-crimson-tint px-3 -mx-3')}
+                className={cn('flex items-center gap-4 py-5', row.isCurrentUser && 'bg-crimson-tint px-3 -mx-3')}
               >
                 <span className="tnum w-8 font-display text-h3">{row.rank}</span>
                 <Stamp tier={row.tier} size="sm" />
@@ -51,7 +55,7 @@ export default function LeaderboardPage() {
                   {row.university ? <span className="block truncate text-small text-ink-3">{row.university}</span> : null}
                 </span>
                 <span className="tnum font-mono">{row.score.toLocaleString('en-US')}</span>
-              </li>
+              </Reveal>
             ))}
           </ol>
         </div>

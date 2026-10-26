@@ -3,6 +3,7 @@ import { Hero } from '../components/landing/Hero';
 import { HowItWorks } from '../components/landing/HowItWorks';
 import { Paths } from '../components/landing/Paths';
 import { TierLadder } from '../components/landing/TierLadder';
+import { Marquee } from '../components/landing/Marquee';
 import { Footer } from '../components/landing/Footer';
 
 export default function LandingPage() {
@@ -10,7 +11,7 @@ export default function LandingPage() {
     <div>
       <header className="shell flex min-h-16 items-center justify-between">
         <Link to="/" className="flex min-h-11 items-center gap-2 font-display text-2xl leading-none">
-          <img src="/logo.svg" alt="" width={28} height={28} />
+          <img src="/logo.svg" alt="" width={34} height={34} />
           <span>
             Veritas<span className="text-crimson">Learn</span>
           </span>
@@ -24,8 +25,9 @@ export default function LandingPage() {
           </Link>
         </nav>
       </header>
-      <main id="main">
+      <main id="main" className="page-in">
         <Hero />
+        <Marquee />
         <HowItWorks />
         <Paths />
         <TierLadder />

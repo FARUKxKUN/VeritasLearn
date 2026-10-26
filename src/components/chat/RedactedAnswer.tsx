@@ -39,9 +39,9 @@ export function RedactedAnswer({ text, locked, className }: RedactedAnswerProps)
   let wordIndex = 0;
 
   return (
-    <div className={cn('space-y-3 leading-relaxed', className)}>
+    <div className={cn('font-serif-answer space-y-4', className)}>
       {locked ? <span className="sr-only">This answer is locked. Pass the comprehension gate to read it.</span> : null}
-      <div aria-hidden={locked} className="space-y-3">
+      <div aria-hidden={locked} className="space-y-4">
         {lines.map((raw, lineIndex) => {
           if (!raw) return null;
           const line = parseLine(raw);

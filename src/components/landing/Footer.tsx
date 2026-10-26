@@ -1,3 +1,4 @@
+import { Reveal } from '../ui/Reveal';
 import { ButtonLink } from '../ui/Button';
 import { PrototypeNote } from '../ui/PrototypeNote';
 
@@ -5,8 +6,10 @@ const REPO = 'https://github.com/FARUKxKUN/VeritasLearn';
 
 export function Footer() {
   return (
-    <footer className="shell py-20">
-      <h2 className="max-w-3xl text-h1">Try one question. Watch the bars lift.</h2>
+    <footer className="shell py-28">
+      <Reveal>
+        <h2 className="max-w-3xl text-h1">Try one question. Watch the bars lift.</h2>
+      </Reveal>
       <div className="mt-8">
         <ButtonLink to="/learn" variant="crimson">
           Open the tutor

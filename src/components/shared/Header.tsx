@@ -17,7 +17,7 @@ export function Header() {
     <header className="sticky top-0 z-40 border-b-2 border-ink bg-paper">
       <div className="shell flex min-h-16 items-center justify-between gap-4">
         <Link to="/" className="flex min-h-11 items-center gap-2 font-display text-2xl leading-none">
-          <img src="/logo.svg" alt="" width={28} height={28} />
+          <img src="/logo.svg" alt="" width={32} height={32} />
           <span>
             Veritas<span className="text-crimson">Learn</span>
           </span>

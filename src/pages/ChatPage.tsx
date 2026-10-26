@@ -67,7 +67,7 @@ export default function ChatPage() {
   return (
     <div className="min-h-dvh">
       <Header />
-      <main id="main" className="shell py-6">
+      <main id="main" className="page-in shell py-6">
         <ChatInterface onOpenGate={openGate} />
         <PrototypeNote className="py-4" />
       </main>

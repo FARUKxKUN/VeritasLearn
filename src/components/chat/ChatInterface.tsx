@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { ArrowUp, LockKey, LockKeyOpen } from '@phosphor-icons/react';
+import { motion, useReducedMotion } from 'motion/react';
+import { EASE_OUT_SOFT } from '../../lib/motion';
 import { useApp } from '../../contexts/AppContext';
 import { getFallbackResponse } from '../../utils/mockData';
 import type { Message } from '../../types';
@@ -53,7 +55,7 @@ export function ChatInterface({ onOpenGate }: ChatInterfaceProps) {
 
   return (
     <div className="flex min-h-[calc(100dvh-9rem)] flex-col">
-      <div className="flex-1 space-y-8 pb-8" aria-live="polite">
+      <div className="flex-1 space-y-10 pb-10" aria-live="polite">
         {messages.length === 0 ? <EmptyState onPick={ask} /> : null}
         {messages.map((message) => (
           <Bubble key={message.id} message={message} onOpenGate={onOpenGate} />
@@ -105,15 +107,21 @@ function EmptyState({ onPick }: { onPick: (question: string) => void }) {
 }
 
 function Bubble({ message, onOpenGate }: { message: Message; onOpenGate: (id: string) => void }) {
+  const reduce = useReducedMotion();
+  const enter = {
+    initial: reduce ? false : { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.5, ease: EASE_OUT_SOFT },
+  } as const;
   if (message.role === 'user') {
     return (
-      <div className="flex justify-end">
-        <p className="max-w-[85%] bg-ink px-4 py-3 text-paper">{message.content}</p>
-      </div>
+      <motion.div className="flex justify-end" {...enter}>
+        <p className="max-w-[85%] bg-ink px-5 py-3 text-paper">{message.content}</p>
+      </motion.div>
     );
   }
   return (
-    <article className="border-l-4 border-crimson pl-4 md:pl-6">
+    <motion.article className="border-l-4 border-crimson pl-5 md:pl-8" {...enter}>
       <header className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <p className="label flex items-center gap-2">
           {message.locked ? <LockKey size={16} aria-hidden /> : <LockKeyOpen size={16} aria-hidden />}
@@ -129,6 +137,6 @@ function Bubble({ message, onOpenGate }: { message: Message; onOpenGate: (id: st
           <LockKeyOpen size={18} aria-hidden /> Lift the bars
         </Button>
       ) : null}
-    </article>
+    </motion.article>
   );
 }

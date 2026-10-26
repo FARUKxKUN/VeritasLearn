@@ -6,7 +6,8 @@
  * rectangles have a 2px edge, only tier stamps are circles. Nothing else is rounded.
  */
 @theme {
-  --font-display: 'Instrument Serif', ui-serif, Georgia, serif;
+  --font-display: 'Bricolage Grotesque Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-serif: 'Newsreader Variable', ui-serif, Georgia, serif;
   --font-sans: 'Bricolage Grotesque Variable', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'Geist Mono Variable', ui-monospace, SFMono-Regular, monospace;
 
@@ -23,19 +24,20 @@
 
   --radius-edge: 2px;
 
-  --text-hero: clamp(3.25rem, 9vw, 8.5rem);
-  --text-hero--line-height: 0.9;
+  --text-hero: clamp(2.75rem, 5.2vw, 5rem);
+  --text-hero--line-height: 1.02;
   --text-hero--letter-spacing: -0.03em;
-  --text-h1: clamp(2.75rem, 6vw, 5rem);
-  --text-h1--line-height: 0.95;
-  --text-h1--letter-spacing: -0.025em;
-  --text-h2: clamp(2rem, 3.8vw, 3.25rem);
-  --text-h2--line-height: 1;
-  --text-h2--letter-spacing: -0.02em;
-  --text-h3: 1.625rem;
-  --text-h3--line-height: 1.1;
-  --text-body: 1.0625rem;
-  --text-body--line-height: 1.6;
+  --text-h1: clamp(2.5rem, 5vw, 4.25rem);
+  --text-h1--line-height: 1.06;
+  --text-h1--letter-spacing: -0.028em;
+  --text-h2: clamp(1.75rem, 3.2vw, 2.75rem);
+  --text-h2--line-height: 1.1;
+  --text-h2--letter-spacing: -0.024em;
+  --text-h3: 1.5rem;
+  --text-h3--line-height: 1.2;
+  --text-h3--letter-spacing: -0.015em;
+  --text-body: 1.125rem;
+  --text-body--line-height: 1.7;
   --text-small: 0.9375rem;
   --text-small--line-height: 1.5;
   --text-label: 0.8125rem;
@@ -64,7 +66,8 @@
   h2,
   h3 {
     font-family: var(--font-display);
-    font-weight: 400;
+    font-weight: 700;
+    font-variation-settings: 'opsz' 96;
     text-wrap: balance;
   }
   p {
@@ -101,6 +104,15 @@
     letter-spacing: var(--text-label--letter-spacing);
     text-transform: uppercase;
     color: var(--color-ink-3);
+  }
+  .font-serif-answer {
+    font-family: var(--font-serif);
+    font-size: 1.1875rem;
+    line-height: 1.75;
+  }
+  .font-display {
+    font-weight: 700;
+    letter-spacing: -0.02em;
   }
   .tnum {
     font-variant-numeric: tabular-nums;
@@ -147,8 +159,10 @@
     display: inline-block;
     background: var(--color-crimson);
     color: transparent;
-    line-height: 0.62;
-    height: 0.62em;
+    line-height: 0.7;
+    height: 0.72em;
+    transform-origin: left center;
+    animation: bar-breathe 5.5s var(--ease-out-soft) 1.4s infinite;
     vertical-align: baseline;
     padding-inline: 0.06em;
     user-select: none;
@@ -186,6 +200,25 @@
       background-color: transparent;
     }
   }
+}
+
+@keyframes bar-breathe {
+  0%, 38% { clip-path: inset(0 0 0 0); }
+  48%, 78% { clip-path: inset(0 0 0 100%); }
+  88%, 100% { clip-path: inset(0 0 0 0); }
+}
+
+@keyframes marquee {
+  to { transform: translateX(-50%); }
+}
+
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+
+.page-in {
+  animation: page-in 0.5s var(--ease-out-soft) both;
 }
 
 @media (prefers-reduced-motion: reduce) {

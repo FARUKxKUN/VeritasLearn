@@ -2,6 +2,8 @@ import { Header } from '../components/shared/Header';
 import { Stamp } from '../components/ui/Stamp';
 import { Meter } from '../components/ui/Meter';
 import { ButtonLink } from '../components/ui/Button';
+import { CountUp } from '../components/ui/CountUp';
+import { Reveal } from '../components/ui/Reveal';
 import { PrototypeNote } from '../components/ui/PrototypeNote';
 import { useApp } from '../contexts/AppContext';
 import { TIER_CONFIG, TierType } from '../types';
@@ -22,23 +24,23 @@ export default function DashboardPage() {
   const todayPoints = activities.filter((a) => isToday(a.timestamp)).reduce((sum, a) => sum + a.points, 0);
 
   const figures = [
-    { label: 'Questions answered', value: String(stats.questionsAnswered) },
-    { label: 'Quiz pass rate', value: `${stats.quizPassRate}%` },
-    { label: 'Day streak', value: String(stats.currentStreak) },
-    { label: 'Minutes studied', value: String(stats.totalStudyTime) },
+    { label: 'Questions answered', num: stats.questionsAnswered, suffix: '' },
+    { label: 'Quiz pass rate', num: stats.quizPassRate, suffix: '%' },
+    { label: 'Day streak', num: stats.currentStreak, suffix: '' },
+    { label: 'Minutes studied', num: stats.totalStudyTime, suffix: '' },
   ];
 
   return (
     <div className="min-h-dvh">
       <Header />
-      <main id="main" className="shell py-10 md:py-16">
+      <main id="main" className="page-in shell py-14 md:py-24">
         <p className="label">Your progress</p>
         <div className="mt-4 grid gap-10 border-b-2 border-ink pb-12 md:grid-cols-[auto_1fr] md:items-end md:gap-14">
           <Stamp tier={tier} size="lg" />
           <div>
             <h1 className="text-h1">{config.name}</h1>
             <p className="tnum mt-2 font-mono text-h3">
-              {score.toLocaleString('en-US')} points <span className="text-ink-3">| +{todayPoints} today</span>
+              <CountUp to={score} /> points <span className="text-ink-3">| +{todayPoints} today</span>
             </p>
             <div className="mt-6 max-w-xl">
               <Meter value={progress} label="Progress to the next tier" tone="crimson" />
@@ -59,7 +61,7 @@ export default function DashboardPage() {
             {figures.map((figure) => (
               <div key={figure.label} className="border-line py-5 md:border-l md:px-6 md:first:border-l-0 md:first:pl-0">
                 <dt className="label">{figure.label}</dt>
-                <dd className="tnum mt-1 font-display text-h1">{figure.value}</dd>
+                <dd className="tnum mt-1 font-display text-h1"><CountUp to={figure.num} suffix={figure.suffix} /></dd>
               </div>
             ))}
           </dl>
@@ -74,13 +76,13 @@ export default function DashboardPage() {
             {TIER_ORDER.map((t) => {
               const reached = score >= TIER_CONFIG[t].minScore;
               return (
-                <li key={t} className={cn('flex flex-col items-start gap-3', !reached && 'opacity-80')}>
+                <Reveal as="li" key={t} delay={TIER_ORDER.indexOf(t) * 0.08} className={cn('flex flex-col items-start gap-3', !reached && 'opacity-80')}>
                   <Stamp tier={t} muted={!reached} />
                   <div>
                     <p className="font-display text-h3">{TIER_CONFIG[t].name}</p>
                     <p className="tnum label">{TIER_CONFIG[t].minScore.toLocaleString('en-US')}+</p>
                   </div>
-                </li>
+                </Reveal>
               );
             })}
           </ol>
