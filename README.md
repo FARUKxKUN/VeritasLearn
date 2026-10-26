@@ -2,6 +2,8 @@
 
 Redesigned in October 2026. The version presented at the hackathon is tagged `hackathon-2026-02`.
 
+**Live demo: https://veritaslearn-gamma.vercel.app** (prototype with mock data)
+
 **1st place, IEEE OPSYNC hackathon.**
 
 VeritasLearn is a learning app built around one idea: before you use AI-generated content, you should prove you understand it. The AI tutor explains a topic, then a comprehension gate (quizzes, flashcards, study material) checks your understanding before the answer is yours to use. Scores feed tiers, badges and a leaderboard.

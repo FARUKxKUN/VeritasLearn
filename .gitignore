@@ -42,3 +42,4 @@ tsc_output.txt
 
 # Antigravity artifacts (optional to ignore, but usually good to keep out of main project repo if they are for development)
 .gemini/
+.vercel
