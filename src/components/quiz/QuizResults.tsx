@@ -22,7 +22,7 @@ export function QuizResults({ score, totalQuestions, pointsEarned, isRetry, onRe
       <p className="mt-4 text-ink-2">
         {passed
           ? `${percent} percent. The bars are lifting and you earned ${pointsEarned} points${isRetry ? ' for the retry' : ''}.`
-          : `${percent} percent. You need 70 to open the answer. Try an easier set, or leave it locked for now.`}
+          : `${percent} percent. You need 70 to open the answer. ${onRetry ? 'Try an easier set, or leave it locked for now.' : 'The answer stays locked for now.'}`}
       </p>
       <div className="mt-8 flex flex-col gap-3 sm:flex-row">
         {onRetry ? (

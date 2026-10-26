@@ -33,8 +33,8 @@ export function MiniGate() {
             <li key={option}>
               <button
                 type="button"
-                disabled={open}
-                onClick={() => choose(index)}
+                aria-disabled={open}
+                onClick={() => !open && choose(index)}
                 className={cn(
                   'flex min-h-11 w-full items-center border-2 px-4 text-left transition-colors',
                   open && index === CORRECT ? 'border-ink bg-ink text-paper' : 'border-line hover:border-ink',

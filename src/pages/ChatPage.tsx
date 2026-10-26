@@ -96,7 +96,7 @@ export default function ChatPage() {
           pointsEarned={result.points}
           isRetry={isRetry}
           onRetry={
-            result.points === 0
+            result.points === 0 && !isRetry
               ? () => {
                   setIsRetry(true);
                   setModal('quiz');

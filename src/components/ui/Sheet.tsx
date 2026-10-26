@@ -33,8 +33,16 @@ export function Sheet({ open, onClose, label, children, className }: SheetProps)
         event.preventDefault();
         onClose?.();
       }}
+      onClose={() => {
+        // A second Escape can close a native dialog despite preventDefault. Reopen it while the state says open.
+        const dialog = ref.current;
+        if (open && dialog && !dialog.open) dialog.showModal();
+      }}
       onMouseDown={(event) => {
-        if (event.target === event.currentTarget) onClose?.();
+        const rect = event.currentTarget.getBoundingClientRect();
+        const outside =
+          event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom;
+        if (outside) onClose?.();
       }}
     >
       {open ? <div className="p-6 md:p-9">{children}</div> : null}

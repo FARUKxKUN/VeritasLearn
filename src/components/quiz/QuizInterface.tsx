@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Check, X } from '@phosphor-icons/react';
 import type { Question } from '../../types';
 import { Button } from '../ui/Button';
@@ -17,14 +17,18 @@ export function QuizInterface({ questions, onComplete }: QuizInterfaceProps) {
   const [submitted, setSubmitted] = useState(false);
   const [correct, setCorrect] = useState(0);
   const question = questions[index];
-  const [remaining, setRemaining] = useState(question.timeLimit);
+  const [remaining, setRemaining] = useState(question?.timeLimit ?? 0);
+  const selectedRef = useRef<number | null>(null);
+  useEffect(() => {
+    selectedRef.current = selected;
+  }, [selected]);
 
   const submit = useCallback(
     (choice: number | null) => {
       setSubmitted(true);
-      if (choice !== null && choice === question.correctAnswer) setCorrect((value) => value + 1);
+      if (choice !== null && choice === question?.correctAnswer) setCorrect((value) => value + 1);
     },
-    [question.correctAnswer],
+    [question?.correctAnswer],
   );
 
   useEffect(() => {
@@ -32,13 +36,13 @@ export function QuizInterface({ questions, onComplete }: QuizInterfaceProps) {
     const id = window.setTimeout(() => {
       if (remaining <= 1) {
         setRemaining(0);
-        submit(selected);
+        submit(selectedRef.current);
       } else {
         setRemaining(remaining - 1);
       }
     }, 1000);
     return () => window.clearTimeout(id);
-  }, [remaining, submitted, selected, submit]);
+  }, [remaining, submitted, submit]);
 
   const next = () => {
     if (index + 1 >= questions.length) {
@@ -51,6 +55,8 @@ export function QuizInterface({ questions, onComplete }: QuizInterfaceProps) {
     setSubmitted(false);
     setRemaining(upcoming.timeLimit);
   };
+
+  if (!question) return <p>No questions available.</p>;
 
   const urgent = remaining <= 10 && !submitted;
 
