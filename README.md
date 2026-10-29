@@ -11,6 +11,12 @@
 
 **1st place at the IEEE OPSYNC hackathon (February 2026).** Redesigned in October 2026. The version presented at the hackathon is tagged [`hackathon-2026-02`](https://github.com/FARUKxKUN/VeritasLearn/tree/hackathon-2026-02).
 
+## Demo
+
+60 second walkthrough of the live prototype: the censor-bar answer, the quiz that unlocks it, XP, the study sheet, progress and ranks, then the phone layout. Sound effects only.
+
+https://github.com/user-attachments/assets/0577df69-a249-4516-8fb7-6e24138a8f0b
+
 ![VeritasLearn landing page](docs/screenshot.png)
 
 ---
