@@ -2,7 +2,7 @@
 
 **An AI tutor that makes you earn the answer: it stays hidden behind censor bars until you prove you understood it.**
 
-[![Live demo](https://img.shields.io/badge/live_demo-veritaslearn--gamma.vercel.app-e2643a?style=flat)](https://veritaslearn-gamma.vercel.app)
+[![Live demo](https://img.shields.io/badge/live_demo-veritaslearn--ai.vercel.app-e2643a?style=flat)](https://veritaslearn-ai.vercel.app)
 [![CI](https://github.com/FARUKxKUN/VeritasLearn/actions/workflows/ci.yml/badge.svg)](https://github.com/FARUKxKUN/VeritasLearn/actions/workflows/ci.yml)
 ![1st place IEEE OPSYNC](https://img.shields.io/badge/IEEE_OPSYNC_2026-1st_place-e2643a?style=flat)
 ![React](https://img.shields.io/badge/React-18-61DAFB?style=flat&logo=react&logoColor=black)
